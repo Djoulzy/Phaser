@@ -1,5 +1,5 @@
 
-var socket = new Connection().createConnection("10.31.200.78:8080", "iphone1|xcode|USER");
+var socket = new Connection("localhost:8080");
 
 //this is just configuring a screen size to fit the game properly
 //to the browser
@@ -74,7 +74,7 @@ main.prototype = {
 		console.log("client started");
 		//listen if a client successfully makes a connection to the server,
 		//and call onsocketConnected
-		socket.on("connect", onsocketConnected);
+		socket.on("connected", onsocketConnected);
 	},
 
 	update: function () {
