@@ -1,4 +1,4 @@
-function Connection(addr) {
+function Connection(addr, callback) {
     var ws = new WebSocket ('ws://'+addr+'/ws');
     var brothers = new Set();
     var connEvt = new Set();
@@ -7,11 +7,7 @@ function Connection(addr) {
 		connEvt[evt] = callback
 	}
 
-    ws.onopen = function(evt) {
-		var params = Encrypt_b64('iphone1|xcode|USER')
-        this.send("[HELO]" + params);
-        connEvt["connected"].call(this);
-    };
+    ws.onopen = callback
 
     ws.onmessage = function(evt) {
     	switch(evt.data.substr(0, 6))
@@ -28,16 +24,32 @@ function Connection(addr) {
     			break;
             case "[BCST]":
                 obj = JSON.parse(evt.data.substr(6));
-                console.log("RCPT: "+obj);
+                // console.log("RCPT: "+obj);
+				connEvt["enemy_move"].call(this, obj);
                 break;
-    		default:
-                console.log(evt);
-                break;
+			case "[NUSR]":
+				obj = JSON.parse(evt.data.substr(6));
+				// obj = evt.data.substr(6);
+                // console.log("RCPT: "+obj);
+				connEvt["new_enemyPlayer"].call(this, obj);
+				break;
+    		default:;
     	}
-    };
+    }
+
+	this.logon = function(name, pass) {
+		var params = Encrypt_b64(name+'|'+pass+'|USER')
+        ws.send("[HELO]" + params);
+		connEvt["userlogged"].call(this);
+	}
 
     this.bcast = function(message) {
-        console.log("[BCST]" + message);
-        ws.send("[BCST]" + message)
+		// console.log(message);
+        ws.send("[BCST]" + JSON.stringify(message))
+    }
+
+	this.newPlayer = function(message) {
+		// console.log(message);
+        ws.send("[NUSR]" + JSON.stringify(message))
     }
 }

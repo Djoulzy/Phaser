@@ -1,4 +1,7 @@
 <!doctype html>
+<?php
+
+?>
 <html>
     <head>
     	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -15,9 +18,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser-ce/2.9.1/phaser.min.js" type="text/javascript"></script>
 	</head>
 	<body>
-		<div id="gameDiv">
+		<div id="gameDiv" pseudo="<?=$_POST['pseudo'];?>" pass="<?=$_POST['pass'];?>">
 		</div>
 	</body>
-	<!-- <script src="client/player.js"></script> -->
+	<script src="client/player.js"></script>
 	<script src="client/main.js"></script>
 </html>

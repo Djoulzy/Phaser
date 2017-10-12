@@ -1,5 +1,5 @@
 
-var socket = new Connection("localhost:8080");
+var socket;
 
 //this is just configuring a screen size to fit the game properly
 //to the browser
@@ -9,11 +9,13 @@ canvas_height = window.innerHeight * window.devicePixelRatio;
 //make a phaser game
 game = new Phaser.Game(canvas_width, canvas_height, Phaser.CANVAS, 'gameDiv');
 
+var enemies = [];
+
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
 	//the world
-	gameWidth: 4000,
-	gameHeight: 4000,
+	gameWidth: 640,
+	gameHeight: 480,
 	game_elemnt: "gameDiv",
 	in_game: false,
 };
@@ -24,12 +26,32 @@ var main = function(game){
 
 //call this function when the player connects to the server.
 function onsocketConnected () {
+	gamediv = document.getElementById(gameProperties.game_elemnt)
+	login = gamediv.getAttribute("pseudo");
+	pass = gamediv.getAttribute("pass");
+	// send to the server a "new_player" message so that the server knows
+	// a new player object has been created
+	gameProperties.pseudo = login;
+	socket.logon(login, pass);
+	socket.newPlayer({id: gameProperties.pseudo, x: player.x, y: player.y, angle: player.angle})
+}
+
+function onuserlogged() {
 	//create a main player object for the connected user to control
 	createPlayer();
 	gameProperties.in_game = true;
-	// send to the server a "new_player" message so that the server knows
-	// a new player object has been created
-	socket.bcast('new_player'); //, {x: 0, y: 0, angle: 0});
+}
+
+function onRemovePlayer (data) {
+	var removePlayer = findplayerbyid(data.id);
+	// Player not found
+	if (!removePlayer) {
+		console.log('Player not found: ', data.id)
+		return;
+	}
+
+	removePlayer.player.destroy();
+	enemies.splice(enemies.indexOf(removePlayer), 1);
 }
 
 function createPlayer () {
@@ -47,7 +69,64 @@ function createPlayer () {
 
 	// draw a shape
 	game.physics.p2.enableBody(player, true);
+	player.body.clearShapes();
 	player.body.addCircle(player.body_size, 0 , 0);
+	player.body.data.shapes[0].sensor = true;
+}
+
+// this is the enemy class.
+var remote_player = function (id, startx, starty, start_angle) {
+	this.x = startx;
+	this.y = starty;
+	//this is the unique socket id. We use it as a unique name for enemy
+	this.id = id;
+	this.angle = start_angle;
+
+	this.player = game.add.graphics(this.x , this.y);
+	this.player.radius = 100;
+
+	// set a fill and line style
+	this.player.beginFill(0xffd900);
+	this.player.lineStyle(2, 0xffd900, 1);
+	this.player.drawCircle(0, 0, this.player.radius * 2);
+	this.player.endFill();
+	this.player.anchor.setTo(0.5,0.5);
+	this.player.body_size = this.player.radius;
+
+	// draw a shape
+	game.physics.p2.enableBody(this.player, true);
+	this.player.body.clearShapes();
+	this.player.body.addCircle(this.player.body_size, 0 , 0);
+	this.player.body.data.shapes[0].sensor = true;
+}
+
+function onNewPlayer (data) {
+	console.log(data);
+	//enemy object
+	var new_enemy = new remote_player(data.id, data.x, data.y, data.angle);
+	enemies.push(new_enemy);
+}
+
+function onEnemyMove (data) {
+	// console.log(data.id);
+	// console.log(enemies);
+	var movePlayer = findplayerbyid (data.id);
+
+	if (!movePlayer) {
+		console.log("player not found")
+		return;
+	}
+	movePlayer.player.body.x = data.x;
+	movePlayer.player.body.y = data.y;
+	movePlayer.player.angle = data.angle;
+}
+
+function findplayerbyid (id) {
+	for (var i = 0; i < enemies.length; i++) {
+		if (enemies[i].id == id) {
+			return enemies[i];
+		}
+	}
 }
 
 // add the
@@ -74,7 +153,15 @@ main.prototype = {
 		console.log("client started");
 		//listen if a client successfully makes a connection to the server,
 		//and call onsocketConnected
-		socket.on("connected", onsocketConnected);
+		socket = new Connection("10.31.200.78:8080", onsocketConnected);
+		socket.on("userlogged", onuserlogged);
+
+		socket.on("new_enemyPlayer", onNewPlayer);
+		//listen to enemy movement
+		socket.on("enemy_move", onEnemyMove);
+
+		// when received remove_player, remove the player passed;
+		socket.on('remove_player', onRemovePlayer);
 	},
 
 	update: function () {
@@ -95,6 +182,8 @@ main.prototype = {
 			} else {
 				movetoPointer(player, 500, pointer);
 			}
+			// console.log(player)
+			socket.bcast({id: gameProperties.pseudo, x: player.x, y: player.y, angle: player.angle})
 		}
 	}
 }

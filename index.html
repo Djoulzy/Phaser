@@ -24,20 +24,20 @@
           <div id="login">
             <h1>Welcome Back!</h1>
 
-            <form action="/game.html" method="post">
+            <form action="/game.php" method="post">
 
               <div class="field-wrap">
               <label>
-                Email Address<span class="req">*</span>
+                Pseudo<span class="req">*</span>
               </label>
-              <input type="email"required autocomplete="off"/>
+              <input name="pseudo" type="text"required autocomplete="off"/>
             </div>
 
             <div class="field-wrap">
               <label>
                 Password<span class="req">*</span>
               </label>
-              <input type="password"required autocomplete="off"/>
+              <input name="pass" type="password"required autocomplete="off"/>
             </div>
 
             <p class="forgot"><a href="#">Forgot Password?</a></p>
@@ -47,7 +47,7 @@
             </form>
 
           </div>
-          
+
         <div id="signup">
           <h1>Sign Up for Free</h1>
 
