@@ -33,14 +33,42 @@ function Connection(addr, callback) {
                 // console.log("RCPT: "+obj);
 				connEvt["new_enemyPlayer"].call(this, obj);
 				break;
+			case "[WLCM]":
+				pseudo = evt.data.substr(6);
+				connEvt["userlogged"].call(this, pseudo);
+				break;
     		default:;
     	}
     }
 
-	this.logon = function(name, pass) {
-		var params = Encrypt_b64(name+'|'+pass+'|USER')
-        ws.send("[HELO]" + params);
-		connEvt["userlogged"].call(this);
+	ws.onclose = function(evt) {
+		switch(evt.code)
+		{
+			case 1005:
+				console.log("CLOSE By Client");
+				ws = null;
+				break;
+			case 1000:
+				console.log("CLOSE By SERVER: " + evt.reason);
+				ws = null;
+				break;
+			case 1006:
+			default:
+				// console.log("Lost Connection: " + evt.reason);
+				// for (let item of brothers) {
+				// 	reconnect(item)
+				// 	if (ws.readyState == 0) {
+				// 		brothers.delete(item)
+				// 	}
+				// 	else break;
+				// }
+				break;
+		}
+	}
+
+	this.logon = function(pass) {
+        ws.send("[HELO]" + pass);
+		// connEvt["userlogged"].call(this);
 	}
 
     this.bcast = function(message) {

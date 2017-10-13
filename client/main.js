@@ -33,13 +33,13 @@ function onsocketConnected () {
 	// a new player object has been created
 	gameProperties.pseudo = login;
 	socket.logon(login, pass);
-	socket.newPlayer({id: gameProperties.pseudo, x: player.x, y: player.y, angle: player.angle})
 }
 
 function onuserlogged() {
 	//create a main player object for the connected user to control
 	createPlayer();
 	gameProperties.in_game = true;
+	socket.newPlayer({id: gameProperties.pseudo, x: player.x, y: player.y, angle: player.angle})
 }
 
 function onRemovePlayer (data) {
@@ -132,19 +132,21 @@ function findplayerbyid (id) {
 // add the
 main.prototype = {
 	preload: function() {
-		game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
-		game.world.setBounds(0, 0, gameProperties.gameWidth,
-		gameProperties.gameHeight, false, false, false, false);
-		//I’m using P2JS for physics system. You can choose others if you want
-		game.physics.startSystem(Phaser.Physics.P2JS);
-		game.physics.p2.setBoundsToWorld(false, false, false, false, false)
-		//sets the y gravity to 0. This means players won’t fall down by gravity
-		game.physics.p2.gravity.y = 0;
-		// turn gravity off
-		game.physics.p2.applyGravity = false;
-		game.physics.p2.enableBody(game.physics.p2.walls, false);
-		// turn on collision detection
-		game.physics.p2.setImpactEvents(true);
+		game.plugins.add(new GridPhysics(this.game));
+		game.physics.gridPhysics.gridSize.set(8);
+		// game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+		// game.world.setBounds(0, 0, gameProperties.gameWidth,
+		// gameProperties.gameHeight, false, false, false, false);
+		// //I’m using P2JS for physics system. You can choose others if you want
+		// game.physics.startSystem(Phaser.Physics.P2JS);
+		// game.physics.p2.setBoundsToWorld(false, false, false, false, false)
+		// //sets the y gravity to 0. This means players won’t fall down by gravity
+		// game.physics.p2.gravity.y = 0;
+		// // turn gravity off
+		// game.physics.p2.applyGravity = false;
+		// game.physics.p2.enableBody(game.physics.p2.walls, false);
+		// // turn on collision detection
+		// game.physics.p2.setImpactEvents(true);
 
     },
 	//this function is fired once when we load the game
@@ -171,17 +173,17 @@ main.prototype = {
 		if (gameProperties.in_game) {
 			// we're using phaser's mouse pointer to keep track of
 			// user's mouse position
-			var pointer = game.input.mousePointer;
-
-			// distanceToPointer allows us to measure the distance between the
-			// mouse pointer and the player object
-			if (distanceToPointer(player, pointer) <= 50) {
-				//The player can move to mouse pointer at a certain speed.
-				//look at player.js on how this is implemented.
-				movetoPointer(player, 0, pointer, 100);
-			} else {
-				movetoPointer(player, 500, pointer);
-			}
+			// var pointer = game.input.mousePointer;
+			//
+			// // distanceToPointer allows us to measure the distance between the
+			// // mouse pointer and the player object
+			// if (distanceToPointer(player, pointer) <= 50) {
+			// 	//The player can move to mouse pointer at a certain speed.
+			// 	//look at player.js on how this is implemented.
+			// 	movetoPointer(player, 0, pointer, 100);
+			// } else {
+			// 	movetoPointer(player, 500, pointer);
+			// }
 			// console.log(player)
 			socket.bcast({id: gameProperties.pseudo, x: player.x, y: player.y, angle: player.angle})
 		}
