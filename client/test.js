@@ -1,4 +1,10 @@
-var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
+
+function preload() {
+    game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
+	game.load.image('tiles', 'assets/zombie_a5.png');
+	game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+}
 
 var ZeWorld;
 var player;
@@ -79,20 +85,21 @@ var remote_player = function (id, startx, starty) {
 	//this is the unique socket id. We use it as a unique name for enemy
 	this.id = id;
 
-	this.player = game.add.sprite(startx , starty, 'dude');
-	game.physics.arcade.enable(this.player);
-    this.player.body.collideWorldBounds = true;
+	this.rplayer = game.add.sprite(startx , starty, 'dude');
+	game.physics.arcade.enable(this.rplayer);
+    this.rplayer.body.collideWorldBounds = true;
 
-    this.player.animations.add('left', [0, 1, 2, 3], 10, true);
-    this.player.animations.add('right', [5, 6, 7, 8], 10, true);
+    this.rplayer.animations.add('left', [0, 1, 2, 3], 10, true);
+    this.rplayer.animations.add('right', [5, 6, 7, 8], 10, true);
     // this.player.animations.add('up', [5, 6, 7, 8], 10, true);
     // this.player.animations.add('down', [5, 6, 7, 8], 10, true);
 }
 
 function createPlayer () {
-	player = game.add.sprite(32, game.world.height - 150, 'dude');
+	player = game.add.sprite(200, 100, 'dude');
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
+	// player.body.setSize(10, 14, 2, 1);
 
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -102,12 +109,6 @@ function createPlayer () {
 	game.camera.follow(player);
 }
 
-function preload() {
-    game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
-	game.load.image('tiles', 'assets/zombie_a5.png');
-	game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-}
-
 function create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 	cursors = game.input.keyboard.createCursorKeys();
@@ -115,8 +116,9 @@ function create() {
 	zeWorld = game.add.tilemap('map', 32, 32);
     zeWorld.addTilesetImage('tiles');
     layer = zeWorld.createLayer(0);
+	game.physics.arcade.enable(layer);
     layer.resizeWorld();
-	zeWorld.setCollisionBetween(54, 83);
+	zeWorld.setCollisionBetween(45, 100);
 	layer.debug = true;
 
 	socket = new Connection("192.168.0.2:8080", onsocketConnected);
@@ -133,28 +135,28 @@ function updatePlayer() {
 	if (cursors.left.isDown) //  Move to the left
 	{
 		// player.x -= 4;
-		player.body.velocity.x = -100;
+		player.body.velocity.x = -200;
 		player.animations.play('left');
 		move = true;
 	}
 	else if (cursors.right.isDown) //  Move to the right
 	{
 		// player.x += 4;
-		player.body.velocity.x = 100;
+		player.body.velocity.x = 200;
 		player.animations.play('right');
 		move = true;
 	}
 	else if (cursors.up.isDown) //  Move to the right
 	{
 		// player.y -= 4;
-		player.body.velocity.y = -100;
+		player.body.velocity.y = -200;
 		player.animations.play('right');
 		move = true;
 	}
 	else if (cursors.down.isDown) //  Move to the right
 	{
 		// player.y += 4;
-		player.body.velocity.y = 100;
+		player.body.velocity.y = +200;
 		player.animations.play('left');
 		move = true;
 	}
@@ -164,31 +166,35 @@ function updatePlayer() {
 		player.frame = 4;
 	}
 	if (move)
-		socket.bcast({id: gameProperties.pseudo, x: player.x, y: player.y})
+		socket.bcast({id: gameProperties.pseudo, x: player.body.x, y: player.body.y})
 }
 
 function updateRemotePlayers() {
 	for (var i = 0; i < enemies.length; i++) {
-		if (enemies[i].x > enemies[i].player.x) {
-			enemies[i].player.x += 4;
-			enemies[i].player.animations.play('right');
+		if ((enemies[i].y == enemies[i].rplayer.y) && (enemies[i].x == enemies[i].rplayer.x)) {
+			enemies[i].rplayer.animations.stop();
+			enemies[i].rplayer.frame = 4;
 		}
-		else if (enemies[i].x < enemies[i].player.x) {
-			enemies[i].player.x -= 4;
-			enemies[i].player.animations.play('left');
+		if (enemies[i].x > enemies[i].rplayer.x) {
+			enemies[i].rplayer.x = enemies[i].x;
+			enemies[i].rplayer.animations.play('right');
 		}
-		else if (enemies[i].y > enemies[i].player.y) {
-			enemies[i].player.y += 4;
-			enemies[i].player.animations.play('right');
+		else if (enemies[i].x < enemies[i].rplayer.x) {
+			enemies[i].rplayer.x = enemies[i].x;
+			enemies[i].rplayer.animations.play('left');
 		}
-		else if (enemies[i].y < enemies[i].player.y) {
-			enemies[i].player.y -= 4;
-			enemies[i].player.animations.play('left');
+		else if (enemies[i].y > enemies[i].rplayer.y) {
+			enemies[i].rplayer.y = enemies[i].y;
+			enemies[i].rplayer.animations.play('right');
 		}
-		else {
-			enemies[i].player.animations.stop();
-			enemies[i].player.frame = 4;
+		else if (enemies[i].y < enemies[i].rplayer.y) {
+			enemies[i].rplayer.y = enemies[i].y;
+			enemies[i].rplayer.animations.play('left');
 		}
+		// else {
+		// 	enemies[i].rplayer.animations.stop();
+		// 	enemies[i].rplayer.frame = 4;
+		// }
 	}
 }
 
@@ -197,4 +203,7 @@ function update() {
 		updatePlayer()
 	}
 	updateRemotePlayers()
+}
+
+function render() {
 }
