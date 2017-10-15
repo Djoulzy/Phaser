@@ -3,7 +3,8 @@ var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload,
 function preload() {
     game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
 	game.load.image('tiles', 'assets/zombie_a5.png');
-	game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
+	game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
 }
 
 var ZeWorld;
@@ -85,26 +86,26 @@ var remote_player = function (id, startx, starty) {
 	//this is the unique socket id. We use it as a unique name for enemy
 	this.id = id;
 
-	this.rplayer = game.add.sprite(startx , starty, 'dude');
+	this.rplayer = game.add.sprite(startx , starty, 'h2');
 	game.physics.arcade.enable(this.rplayer);
     this.rplayer.body.collideWorldBounds = true;
 
-    this.rplayer.animations.add('left', [0, 1, 2, 3], 10, true);
-    this.rplayer.animations.add('right', [5, 6, 7, 8], 10, true);
-    // this.player.animations.add('up', [5, 6, 7, 8], 10, true);
-    // this.player.animations.add('down', [5, 6, 7, 8], 10, true);
+	this.rplayer.animations.add('left', [3, 4, 5], 10, true);
+    this.rplayer.animations.add('right', [6, 7, 8], 10, true);
+    this.rplayer.animations.add('up', [9, 10, 11], 10, true);
+    this.rplayer.animations.add('down', [0, 1, 2], 10, true);
 }
 
 function createPlayer () {
-	player = game.add.sprite(200, 100, 'dude');
+	player = game.add.sprite(200, 100, 'h1');
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 	// player.body.setSize(10, 14, 2, 1);
 
-    player.animations.add('left', [0, 1, 2, 3], 10, true);
-    player.animations.add('right', [5, 6, 7, 8], 10, true);
-    // player.animations.add('up', [5, 6, 7, 8], 10, true);
-    // player.animations.add('down', [5, 6, 7, 8], 10, true);
+    player.animations.add('left', [3, 4, 5], 10, true);
+    player.animations.add('right', [6, 7, 8], 10, true);
+    player.animations.add('up', [9, 10, 11], 10, true);
+    player.animations.add('down', [0, 1, 2], 10, true);
 
 	game.camera.follow(player);
 }
@@ -150,51 +151,54 @@ function updatePlayer() {
 	{
 		// player.y -= 4;
 		player.body.velocity.y = -200;
-		player.animations.play('right');
+		player.animations.play('up');
 		move = true;
 	}
 	else if (cursors.down.isDown) //  Move to the right
 	{
 		// player.y += 4;
 		player.body.velocity.y = +200;
-		player.animations.play('left');
+		player.animations.play('down');
 		move = true;
 	}
 	else //  Stand still
 	{
 		player.animations.stop();
-		player.frame = 4;
+		player.frame = 1;
 	}
 	if (move)
 		socket.bcast({id: gameProperties.pseudo, x: player.body.x, y: player.body.y})
 }
 
 function updateRemotePlayers() {
+	modifier = 4;
 	for (var i = 0; i < enemies.length; i++) {
-		if ((enemies[i].y == enemies[i].rplayer.y) && (enemies[i].x == enemies[i].rplayer.x)) {
-			enemies[i].rplayer.animations.stop();
-			enemies[i].rplayer.frame = 4;
-		}
-		if (enemies[i].x > enemies[i].rplayer.x) {
-			enemies[i].rplayer.x = enemies[i].x;
-			enemies[i].rplayer.animations.play('right');
-		}
-		else if (enemies[i].x < enemies[i].rplayer.x) {
-			enemies[i].rplayer.x = enemies[i].x;
+		diffx = Math.abs(enemies[i].rplayer.x - enemies[i].x);
+		diffy = Math.abs(enemies[i].rplayer.y - enemies[i].y);
+		if (enemies[i].x < enemies[i].rplayer.x) {
+			if (modifier >= diffx) enemies[i].rplayer.x -= diffx;
+			else enemies[i].rplayer.x -= modifier;
 			enemies[i].rplayer.animations.play('left');
 		}
-		else if (enemies[i].y > enemies[i].rplayer.y) {
-			enemies[i].rplayer.y = enemies[i].y;
+		else if (enemies[i].x > enemies[i].rplayer.x) {
+			if (modifier >= diffx) enemies[i].rplayer.x += diffx;
+			else enemies[i].rplayer.x += modifier;
 			enemies[i].rplayer.animations.play('right');
 		}
 		else if (enemies[i].y < enemies[i].rplayer.y) {
-			enemies[i].rplayer.y = enemies[i].y;
-			enemies[i].rplayer.animations.play('left');
+			if (modifier >= diffy) enemies[i].rplayer.y -= diffy;
+			else enemies[i].rplayer.y -= modifier;
+			enemies[i].rplayer.animations.play('up');
 		}
-		// else {
-		// 	enemies[i].rplayer.animations.stop();
-		// 	enemies[i].rplayer.frame = 4;
-		// }
+		else if (enemies[i].y > enemies[i].rplayer.y) {
+			if (modifier >= diffy) enemies[i].rplayer.y += diffy;
+			else enemies[i].rplayer.y += modifier;
+			enemies[i].rplayer.animations.play('down');
+		}
+		else {
+			enemies[i].rplayer.animations.stop();
+			enemies[i].rplayer.frame = 1;
+		}
 	}
 }
 
