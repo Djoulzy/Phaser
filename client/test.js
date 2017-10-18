@@ -12,7 +12,10 @@ var player;
 var layer;
 var cursors;
 var socket;
-var enemies = [];
+var entities = [];
+var PlayerOrdersCount = 0;
+var velocity = 200;
+var pixelpersecond = Math.round(velocity * 1/window.ServerTimeStep);
 
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
@@ -35,10 +38,9 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	var new_player = new createPlayer(pseudo, 200, 100);
-	enemies.push(new_player);
-	socket.newPlayer({id: gameProperties.pseudo, x: 200, y: 100});
-	console.log(gameProperties);
+	var new_player = new createPlayer(pseudo, 224, 96);
+	// entities.push(new_player);
+	socket.newPlayer({id: gameProperties.pseudo, x: 224, y: 96});
 }
 
 function onRemovePlayer (data) {
@@ -50,34 +52,39 @@ function onRemovePlayer (data) {
 	}
 
 	removePlayer.player.destroy();
-	enemies.splice(enemies.indexOf(removePlayer), 1);
+	entities.splice(entities.indexOf(removePlayer), 1);
 }
 
 function onNewPlayer (data) {
 	console.log(data);
 	//enemy object
 	var new_enemy = new remote_player(data.id, data.x, data.y);
-	enemies.push(new_enemy);
+	entities.push(new_enemy);
 }
 
 function onEnemyMove (data) {
-	// console.log(enemies);
+	if (data.id == gameProperties.pseudo) {
+		return
+	}
+
 	var movePlayer = findplayerbyid (data.id);
 	if (!movePlayer) {
 		onNewPlayer(data)
 		return;
 	}
+	movePlayer.newMove = data
+
 	movePlayer.x = data.x;
 	movePlayer.y = data.y;
+	movePlayer.needUpdate = true;
 }
 
 /////////////////////////
 
 function findplayerbyid (id) {
-	for (var i = 0; i < enemies.length; i++) {
-		if (enemies[i].id == id) {
-			console.log(enemies[i])
-			return enemies[i];
+	for (var i = 0; i < entities.length; i++) {
+		if (entities[i].id == id) {
+			return entities[i];
 		}
 	}
 }
@@ -87,6 +94,8 @@ var remote_player = function (id, startx, starty) {
 	this.y = starty;
 	//this is the unique socket id. We use it as a unique name for enemy
 	this.id = id;
+	this.needUpdate = false;
+	this.newMove = null;
 
 	this.player = game.add.sprite(startx , starty, 'h2');
 	game.physics.arcade.enable(this.player);
@@ -102,8 +111,10 @@ function createPlayer (id, startx, starty) {
 	this.x = startx;
 	this.y = starty;
 	this.id = id;
+	this.needUpdate = false;
+	this.newMove = null;
 
-	player = game.add.sprite(200, 100, 'h1');
+	player = game.add.sprite(startx, starty, 'h1');
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 	// player.body.setSize(10, 14, 2, 1);
@@ -112,6 +123,8 @@ function createPlayer (id, startx, starty) {
     player.animations.add('right', [6, 7, 8], 10, true);
     player.animations.add('up', [9, 10, 11], 10, true);
     player.animations.add('down', [0, 1, 2], 10, true);
+
+	player.last_input = +new Date();
 
 	game.camera.follow(player);
 
@@ -130,7 +143,7 @@ function create() {
 	zeWorld.setCollisionBetween(45, 100);
 	layer.debug = true;
 
-	socket = new Connection(window.MVDB_Server, onsocketConnected);
+	socket = new Connection(window.Server, onsocketConnected);
 	socket.on("userlogged", onuserlogged);
 	socket.on("new_enemyPlayer", onNewPlayer);
 	socket.on("enemy_move", onEnemyMove);
@@ -138,84 +151,119 @@ function create() {
 }
 
 function updatePlayer() {
+	var now_ts = +new Date();
+    var dt_sec = (now_ts - player.last_input) / 1000.0;
+
 	game.physics.arcade.collide(player, layer);
-	player.body.velocity.set(0);
-	move = false;
-	destx = player.body.x;
-	desty = player.body.y;
-	if (cursors.left.isDown) //  Move to the left
-	{
-		// player.x -= 4;
-		// player.body.velocity.x = -200;
-		// player.animations.play('left');
-		destx -= 4;
-		move = true;
+	var step = 32;
+	var destx = player.body.x;
+	var desty = player.body.y;
+	if (dt_sec > 1/window.ServerTimeStep) {
+		player.body.velocity.set(0);
+		move = "";
+		if (cursors.left.isDown) //  Move to the left
+		{
+			// player.x -= 4;
+			// player.body.velocity.x = -velocity;
+			player.body.moveTo(1000/window.ServerTimeStep, step, 180);
+			player.animations.play('left');
+			destx -= step;
+			move = "left";
+		}
+		else if (cursors.right.isDown) //  Move to the right
+		{
+			// player.x += 4;
+			// player.body.velocity.x = velocity;
+			player.body.moveTo(1000/window.ServerTimeStep, step, 0);
+			player.animations.play('right');
+			destx += step;
+			move = "right";
+		}
+		else if (cursors.up.isDown) //  Move to the right
+		{
+			// player.y -= 4;
+			// player.body.velocity.y = -velocity;
+			player.body.moveTo(1000/window.ServerTimeStep, step, 270);
+			player.animations.play('up');
+			desty -= step;
+			move = "up";
+		}
+		else if (cursors.down.isDown) //  Move to the right
+		{
+			// player.y += 4;
+			// player.body.velocity.y = +velocity;
+			player.body.moveTo(1000/window.ServerTimeStep, step, 90);
+			player.animations.play('down');
+			desty += step;
+			move = "down";
+		}
+		else //  Stand still
+		{
+			player.animations.stop();
+			player.frame = 1;
+		}
+		if (move != "")
+		{
+			// console.log("last_input: "+player.last_input+" / player_input: "+player.input+" / delta: "+dt_sec)
+			player.last_input = now_ts;
+			PlayerOrdersCount += 1;
+			socket.bcast({id: gameProperties.pseudo, num: PlayerOrdersCount, move: move, x: destx, y: desty })
+		}
 	}
-	else if (cursors.right.isDown) //  Move to the right
-	{
-		// player.x += 4;
-		// player.body.velocity.x = 200;
-		// player.animations.play('right');
-		destx += 4;
-		move = true;
-	}
-	else if (cursors.up.isDown) //  Move to the right
-	{
-		// player.y -= 4;
-		// player.body.velocity.y = -200;
-		// player.animations.play('up');
-		desty -= 4;
-		move = true;
-	}
-	else if (cursors.down.isDown) //  Move to the right
-	{
-		// player.y += 4;
-		// player.body.velocity.y = +200;
-		// player.animations.play('down');
-		desty += 4;
-		move = true;
-	}
-	else //  Stand still
-	{
-		player.animations.stop();
-		player.frame = 1;
-	}
-	if (move)
-		socket.bcast({id: gameProperties.pseudo, x: Math.ceil(destx), y: Math.ceil(desty)})
 }
 
 function updateRemotePlayers() {
-	modifier = 4;
-	for (var i = 0; i < enemies.length; i++) {
-		if (enemies[i].x < enemies[i].player.body.x) {
-			// enemies[i].player.body.velocity.x = -200
-			this.game.physics.arcade.moveToXY(enemies[i].player, enemies[i].x, Phaser.Math.snapTo(enemies[i].player.body.y, 70), 200)
-			enemies[i].player.animations.play('left');
+	for (var i = 0; i < entities.length; i++) {
+		if (entities[i].needUpdate) {
+			entities[i].player.body.velocity.set(0);
+			if (entities[i].newMove.move == "left") {
+				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].player.x - entities[i].x, 180);
+				entities[i].player.animations.play(entities[i].newMove.move);
+			}
+			else if (entities[i].newMove.move == "right") {
+				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].x- entities[i].player.x, 0);
+				entities[i].player.animations.play(entities[i].newMove.move);
+			}
+			else if (entities[i].newMove.move == "up") {
+				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].player.y - entities[i].y, 270);
+				entities[i].player.animations.play(entities[i].newMove.move);
+			}
+			else if (entities[i].newMove.move == "down") {
+				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].y- entities[i].player.y, 90);
+				entities[i].player.animations.play(entities[i].newMove.move);
+			}
+			else {
+				entities[i].player.animations.stop();
+				entities[i].player.frame = 1;
+			}
+			entities[i].needUpdate = false;
 		}
-		else if (enemies[i].x > enemies[i].player.body.x) {
-			// enemies[i].player.body.velocity.x = +200
-			this.game.physics.arcade.moveToXY(enemies[i].player, enemies[i].x, Phaser.Math.snapTo(enemies[i].player.body.y, 70), 200)
-			enemies[i].player.animations.play('right');
-		}
-		else if (enemies[i].y < enemies[i].player.body.y) {
-			// enemies[i].player.body.velocity.y = -200
-			// this.game.physics.arcade.moveToXY(enemies[i].player, enemies[i].player.body.x, enemies[i].y, 200)
-			this.game.physics.arcade.moveToXY(enemies[i].player, Phaser.Math.snapTo(enemies[i].player.body.x, 70), enemies[i].y, 200)
-			enemies[i].player.animations.play('up');
-		}
-		else if (enemies[i].y > enemies[i].player.body.y) {
-			// enemies[i].player.body.velocity.y = +200
-			this.game.physics.arcade.moveToXY(enemies[i].player, Phaser.Math.snapTo(enemies[i].player.body.x, 70), enemies[i].y, 200)
-			enemies[i].player.animations.play('down');
-		}
-		else {
-			enemies[i].player.body.velocity.x = 0;
-			enemies[i].player.body.velocity.y = 0;
-			enemies[i].player.body.x = Math.ceil(enemies[i].player.body.x)
-			enemies[i].player.body.y = Math.ceil(enemies[i].player.body.y)
-			enemies[i].player.animations.stop();
-			enemies[i].player.frame = 1;
-		}
+		// if (entities[i].needUpdate) {
+			// if (entities[i].x < entities[i].player.body.x) {
+			// 	entities[i].player.body.x -= pixelpersecond
+			// 	entities[i].player.animations.play('left');
+			// }
+			// else if (entities[i].x > entities[i].player.body.x) {
+			// 	entities[i].player.body.x += pixelpersecond
+			// 	entities[i].player.animations.play('right');
+			// }
+			// else if (entities[i].y < entities[i].player.body.y) {
+			// 	entities[i].player.body.y -= pixelpersecond
+			// 	entities[i].player.animations.play('up');
+			// }
+			// else if (entities[i].y > entities[i].player.body.y) {
+			// 	entities[i].player.body.y += pixelpersecond
+			// 	entities[i].player.animations.play('down');
+			// }
+			// else {
+			// 	entities[i].player.animations.stop();
+			// 	entities[i].player.frame = 1;
+			// }
+		// 	entities[i].needUpdate = false;
+		// }
+		// else {
+		// 	entities[i].player.body.velocity.set(0);
+		// }
 	}
 }
 
