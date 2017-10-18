@@ -130,7 +130,7 @@ function create() {
 	zeWorld.setCollisionBetween(45, 100);
 	layer.debug = true;
 
-	socket = new Connection("10.31.200.78:8080", onsocketConnected);
+	socket = new Connection(window.MVDB_Server, onsocketConnected);
 	socket.on("userlogged", onuserlogged);
 	socket.on("new_enemyPlayer", onNewPlayer);
 	socket.on("enemy_move", onEnemyMove);
