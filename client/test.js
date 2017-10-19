@@ -38,9 +38,9 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	var new_player = new createPlayer(pseudo, 224, 96);
+	var new_player = new createPlayer(pseudo, 48, 48);
 	// entities.push(new_player);
-	socket.newPlayer({id: gameProperties.pseudo, x: 224, y: 96});
+	socket.newPlayer({id: gameProperties.pseudo, x: 48, y: 48});
 }
 
 function onRemovePlayer (data) {
@@ -100,6 +100,8 @@ var remote_player = function (id, startx, starty) {
 	this.player = game.add.sprite(startx , starty, 'h2');
 	game.physics.arcade.enable(this.player);
     this.player.body.collideWorldBounds = true;
+	this.player.body.setSize(32, 32);
+    this.player.anchor.setTo(0.5, 0.5);
 
 	this.player.animations.add('left', [3, 4, 5], 10, true);
     this.player.animations.add('right', [6, 7, 8], 10, true);
@@ -117,7 +119,8 @@ function createPlayer (id, startx, starty) {
 	player = game.add.sprite(startx, starty, 'h1');
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
-	// player.body.setSize(10, 14, 2, 1);
+	player.body.setSize(32, 32);
+    player.anchor.setTo(0.5, 0.5);
 
     player.animations.add('left', [3, 4, 5], 10, true);
     player.animations.add('right', [6, 7, 8], 10, true);
@@ -151,21 +154,33 @@ function create() {
 }
 
 function updatePlayer() {
+
+    // playerMoving = yes // Check playerMoving at the start of your movement code, only do movement if it is false. If playerMoving is true, it means the player is still moving to his next square.
+    // var move = game.add.tween(player) // Create a movement tween
+    // move.to({x: newX * 32, y: newY * 32}, 180) // Move to the new grid position over a specific duration - this can be set to whatever you like, onComplete will only call when the animation is done
+    // move.onComplete.add(function() {
+    //     playerMoving = no // Set playerMoving back to false so that the next movement can start.
+    // }, this)
+    // move.start() // Now actually run the tween
+
 	var now_ts = +new Date();
     var dt_sec = (now_ts - player.last_input) / 1000.0;
 
 	game.physics.arcade.collide(player, layer);
 	var step = 32;
-	var destx = player.body.x;
-	var desty = player.body.y;
-	if (dt_sec > 1/window.ServerTimeStep) {
-		player.body.velocity.set(0);
+    // var speed = (1000/window.ServerTimeStep);
+    var speed = 992;
+	var destx = player.x;
+	var desty = player.y;
+
+	if (dt_sec > speed/1000) {
+		// player.body.velocity.set(0);
 		move = "";
 		if (cursors.left.isDown) //  Move to the left
 		{
 			// player.x -= 4;
 			// player.body.velocity.x = -velocity;
-			player.body.moveTo(1000/window.ServerTimeStep, step, 180);
+			player.body.moveTo(speed*2, step, 180);
 			player.animations.play('left');
 			destx -= step;
 			move = "left";
@@ -174,7 +189,7 @@ function updatePlayer() {
 		{
 			// player.x += 4;
 			// player.body.velocity.x = velocity;
-			player.body.moveTo(1000/window.ServerTimeStep, step, 0);
+			player.body.moveTo(speed*2, step, 0);
 			player.animations.play('right');
 			destx += step;
 			move = "right";
@@ -183,7 +198,7 @@ function updatePlayer() {
 		{
 			// player.y -= 4;
 			// player.body.velocity.y = -velocity;
-			player.body.moveTo(1000/window.ServerTimeStep, step, 270);
+			player.body.moveTo(speed*2, step, 270);
 			player.animations.play('up');
 			desty -= step;
 			move = "up";
@@ -192,16 +207,16 @@ function updatePlayer() {
 		{
 			// player.y += 4;
 			// player.body.velocity.y = +velocity;
-			player.body.moveTo(1000/window.ServerTimeStep, step, 90);
+			player.body.moveTo(speed*2, step, 90);
 			player.animations.play('down');
 			desty += step;
 			move = "down";
 		}
-		else //  Stand still
-		{
-			player.animations.stop();
-			player.frame = 1;
-		}
+		// else //  Stand still
+		// {
+		// 	player.animations.stop();
+		// 	player.frame = 1;
+		// }
 		if (move != "")
 		{
 			// console.log("last_input: "+player.last_input+" / player_input: "+player.input+" / delta: "+dt_sec)
