@@ -17,6 +17,8 @@ var socket;
 var entities = [];
 var PlayerOrdersCount = 0;
 var PlayerIsMoving = false;
+var step = 32;
+var speed = Math.ceil((1000/window.ServerTimeStep)/32)*32+50;
 
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
@@ -102,12 +104,14 @@ var remote_player = function (id, startx, starty) {
 	game.physics.arcade.enable(this.player);
     this.player.body.collideWorldBounds = true;
 	this.player.body.setSize(32, 32);
-    this.player.anchor.setTo(0.5, 0.5);
 
 	this.player.animations.add('left', [3, 4, 5], 10, true);
     this.player.animations.add('right', [6, 7, 8], 10, true);
     this.player.animations.add('up', [9, 10, 11], 10, true);
     this.player.animations.add('down', [0, 1, 2], 10, true);
+
+	this.player.PlayerIsMoving = false
+	this.player.body.onMoveComplete.add(moveEntitesOver, this.player);
 }
 
 function createPlayer (id, startx, starty) {
@@ -121,7 +125,6 @@ function createPlayer (id, startx, starty) {
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 	player.body.setSize(32, 32);
-    player.anchor.setTo(0, 0);
 
     player.animations.add('left', [3, 4, 5], 10, true);
     player.animations.add('right', [6, 7, 8], 10, true);
@@ -155,10 +158,10 @@ function create() {
 	socket.on('remove_player', onRemovePlayer);
 }
 
-function adjustSpritePosition(sprite) {
-	markerx = game.math.snapToFloor(Math.ceil(sprite.body.x), 32)
-	markery = game.math.snapToFloor(Math.ceil(sprite.body.y), 32)
-	console.log("Adjusting : x="+sprite.x+" y="+sprite.y+" -> x="+ markerx +" y="+markery)
+function adjustSpritePosition(sprite, x, y) {
+	markerx = game.math.snapToFloor(Math.ceil(x), 32)
+	markery = game.math.snapToFloor(Math.ceil(y), 32)
+	// console.log("Adjusting : x="+sprite.x+" y="+sprite.y+" -> x="+ markerx +" y="+markery)
 	sprite.body.x = markerx
 	sprite.body.y = markery
 }
@@ -171,21 +174,24 @@ function sendMoveToServer(sprite, tick, move, x, y) {
 }
 
 function movePlayerOver(sprite) {
-	adjustSpritePosition(sprite)
+	adjustSpritePosition(sprite, sprite.body.x, sprite.body.y)
 	PlayerIsMoving = false
+}
+
+function moveEntitesOver(entity) {
+	adjustSpritePosition(entity, entity.body.x, entity.body.y)
+	entity.PlayerIsMoving = false
 }
 
 function updatePlayer() {
 	game.physics.arcade.collide(player, layer, movePlayerOver);
-	var step = 32;
-    var speed = Math.ceil((1000/window.ServerTimeStep)/32)*32+50;
 
-	var destx = player.body.x
-	var desty = player.body.y
-
-	var now_ts = +new Date();
-    var dt_msec = now_ts - player.last_input
 	if (!PlayerIsMoving) {
+
+		destx = player.body.x
+		desty = player.body.y
+		now_ts = +new Date();
+
 		if (cursors.left.isDown) //  Move to the left
 		{
 			sendMoveToServer(player, now_ts, "left", destx-step, desty)
@@ -219,31 +225,30 @@ function updatePlayer() {
 
 function updateRemotePlayers() {
 	for (var i = 0; i < entities.length; i++) {
-		if (entities[i].needUpdate) {
-			entities[i].player.body.velocity.set(0);
+		if (entities[i].needUpdate && !entities[i].player.PlayerIsMoving) {
+			entities[i].player.PlayerIsMoving = true
+			entities[i].needUpdate = false
 			if (entities[i].newMove.move == "left") {
-				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].player.x - entities[i].x, 180);
+				// entities[i].player.body.moveTo(speed, step, 180);
+				game.physics.arcade.moveToXY(entities[i].player, entities[i].x, entities[i].player.body.y, speed);
 				entities[i].player.animations.play(entities[i].newMove.move);
 			}
 			else if (entities[i].newMove.move == "right") {
-				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].x- entities[i].player.x, 0);
+				// entities[i].player.body.moveTo(speed, step, 0);
+				game.physics.arcade.moveToXY(entities[i].player, entities[i].x, entities[i].player.body.y, speed);
 				entities[i].player.animations.play(entities[i].newMove.move);
 			}
 			else if (entities[i].newMove.move == "up") {
-				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].player.y - entities[i].y, 270);
+				// entities[i].player.body.moveTo(speed, step, 270);
+				game.physics.arcade.moveToXY(entities[i].player, entities[i].player.body.x, entities[i].y, speed);
 				entities[i].player.animations.play(entities[i].newMove.move);
 			}
 			else if (entities[i].newMove.move == "down") {
-				entities[i].player.body.moveTo(1000/window.ServerTimeStep, entities[i].y- entities[i].player.y, 90);
+				// entities[i].player.body.moveTo(speed, step, 90);
+				game.physics.arcade.moveToXY(entities[i].player, entities[i].player.body.x, entities[i].y, speed);
 				entities[i].player.animations.play(entities[i].newMove.move);
 			}
-			else {
-				entities[i].player.animations.stop();
-				entities[i].player.frame = 1;
-			}
-			entities[i].needUpdate = false;
 		}
-
 	}
 }
 
