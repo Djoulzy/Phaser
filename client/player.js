@@ -1,74 +1,37 @@
-function movetoPointer (displayObject, speed, pointer, maxTime) {
+var User = function (id, face, startx, starty) {
+	this.sprite = game.add.sprite(startx , starty, face);
 
-		/*
-		var bound_limit = 40;
-		var upper_bound = bound_limit;
-		var bottom_bound = game.world.height - bound_limit;
-		var left_bound = bound_limit;
-		var right_bound = game.world.width - bound_limit;
-		var play_bound = true;
+	//this is the unique socket id. We use it as a unique name for enemy
+	this.sprite.User_id = id;
+	this.sprite.needUpdate = false;
+	this.sprite.newMove = null;
 
-        if (speed === undefined) { speed = 60; }
-        pointer = pointer;
-        if (maxTime === undefined) { maxTime = 0; }
 
-		*/
-        var angle = angleToPointer(displayObject, pointer);
+    this.sprite.dest_x = startx
+    this.sprite.dest_y = starty
+	game.physics.arcade.enable(this.sprite);
+    this.sprite.body.collideWorldBounds = true;
+	this.sprite.body.setSize(32, 32);
 
-        if (maxTime > 0)
-        {
-            //  We know how many pixels we need to move, but how fast?
-            speed = distanceToPointer(displayObject, pointer) / (maxTime / 1000);
-        }
+	this.sprite.animations.add('left', [3, 4, 5], 10, true);
+    this.sprite.animations.add('right', [6, 7, 8], 10, true);
+    this.sprite.animations.add('up', [9, 10, 11], 10, true);
+    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 
-		/*
-		if (displayObject.body.y < upper_bound || displayObject.body.y > bottom_bound) {
-			if (!(game.input.worldY > upper_bound && game.input.worldY < bottom_bound)) {
-				displayObject.body.velocity.y = 0;
-			} else {
-				displayObject.body.velocity.x = Math.cos(angle) * speed;
-				displayObject.body.velocity.y = Math.sin(angle) * speed;
-			}
-		} else if (displayObject.body.x < left_bound || displayObject.body.x > right_bound) {
-			if (!(game.input.worldX > left_bound && game.input.worldX < right_bound)) {
-				displayObject.body.velocity.x = 0;
-			} else {
-				displayObject.body.velocity.x = Math.cos(angle) * speed;
-				displayObject.body.velocity.y = Math.sin(angle) * speed;
-			}
-		}
-		*/
-		displayObject.body.velocity.x = Math.cos(angle) * speed;
-		displayObject.body.velocity.y = Math.sin(angle) * speed;
-
-        return angle;
-
+	this.sprite.PlayerIsMoving = false
+	this.sprite.body.onMoveComplete.add(this.moveUserOver, this);
 }
 
-function distanceToPointer (displayObject, pointer, world) {
-
-
-        if (world === undefined) { world = false; }
-
-        var dx = (world) ? displayObject.world.x - pointer.worldX : displayObject.x - pointer.worldX;
-        var dy = (world) ? displayObject.world.y - pointer.worldY : displayObject.y - pointer.worldY;
-
-        return Math.sqrt(dx * dx + dy * dy);
-
+User.prototype.adjustSpritePosition = function() {
+    console.log(this.sprite.dest_x)
+	markerx = game.math.snapToFloor(Math.ceil(this.sprite.dest_x), 32)
+	markery = game.math.snapToFloor(Math.ceil(this.sprite.dest_y), 32)
+	// console.log("Adjusting : x="+sprite.x+" y="+sprite.y+" -> x="+ markerx +" y="+markery)
+	this.sprite.body.x = markerx
+	this.sprite.body.y = markery
 }
 
-function angleToPointer (displayObject, pointer, world) {
-
-
-        if (world === undefined) { world = false; }
-
-        if (world)
-        {
-            return Math.atan2(pointer.worldY - displayObject.world.y, pointer.worldX - displayObject.world.x);
-        }
-        else
-        {
-            return Math.atan2(pointer.worldY - displayObject.y, pointer.worldX - displayObject.x);
-        }
-
+User.prototype.moveUserOver = function() {
+	this.adjustSpritePosition()
+	this.sprite.PlayerIsMoving = false
 }
