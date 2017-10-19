@@ -14,8 +14,7 @@ var cursors;
 var socket;
 var entities = [];
 var PlayerOrdersCount = 0;
-var velocity = 200;
-var pixelpersecond = Math.round(velocity * 1/window.ServerTimeStep);
+var PlayerIsMoving = false;
 
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
@@ -130,6 +129,7 @@ function createPlayer (id, startx, starty) {
 	player.last_input = +new Date();
 
 	game.camera.follow(player);
+	player.body.onMoveComplete.add(movePlayerOver, this);
 
 	this.player = player
 }
@@ -153,6 +153,28 @@ function create() {
 	socket.on('remove_player', onRemovePlayer);
 }
 
+function adjustSpritePosition(sprite) {
+	markerx = game.math.snapToFloor(Math.floor(sprite.x), 32) + 16
+	markery = game.math.snapToFloor(Math.floor(sprite.y), 32) + 16
+	console.log("Adjusting : x="+sprite.x+" y="+sprite.y+" -> x="+ markerx +" y="+markery)
+	sprite.x = markerx
+	sprite.y = markery
+}
+
+function sendMoveToServer(sprite, tick, move, x, y) {
+	sprite.last_input = tick;
+	adjustSpritePosition(sprite)
+	PlayerOrdersCount += 1;
+	socket.bcast({id: gameProperties.pseudo, num: PlayerOrdersCount, move: move, x: x, y: y })
+	PlayerIsMoving = true
+}
+
+function movePlayerOver(sprite) {
+	// sprite.animations.stop();
+	// sprite.frame = 1;
+	PlayerIsMoving = false
+}
+
 function updatePlayer() {
 
     // playerMoving = yes // Check playerMoving at the start of your movement code, only do movement if it is false. If playerMoving is true, it means the player is still moving to his next square.
@@ -163,66 +185,42 @@ function updatePlayer() {
     // }, this)
     // move.start() // Now actually run the tween
 
-	var now_ts = +new Date();
-    var dt_sec = (now_ts - player.last_input) / 1000.0;
-
-	game.physics.arcade.collide(player, layer);
+	game.physics.arcade.collide(player, layer, movePlayerOver);
 	var step = 32;
-    // var speed = (1000/window.ServerTimeStep);
-    var speed = 992;
+    var speed = Math.ceil((1000/window.ServerTimeStep)/32)*32+50;
 	var destx = player.x;
 	var desty = player.y;
 
-	if (dt_sec > speed/1000) {
-		// player.body.velocity.set(0);
-		move = "";
+	var now_ts = +new Date();
+    var dt_msec = now_ts - player.last_input
+	if (!PlayerIsMoving) {
 		if (cursors.left.isDown) //  Move to the left
 		{
-			// player.x -= 4;
-			// player.body.velocity.x = -velocity;
-			player.body.moveTo(speed*2, step, 180);
+			sendMoveToServer(player, now_ts, "left", destx-step, desty)
+			player.body.moveTo(speed, step, 180);
 			player.animations.play('left');
-			destx -= step;
-			move = "left";
 		}
 		else if (cursors.right.isDown) //  Move to the right
 		{
-			// player.x += 4;
-			// player.body.velocity.x = velocity;
-			player.body.moveTo(speed*2, step, 0);
+			sendMoveToServer(player, now_ts, "right", destx+step, desty)
+			player.body.moveTo(speed, step, 0);
 			player.animations.play('right');
-			destx += step;
-			move = "right";
 		}
 		else if (cursors.up.isDown) //  Move to the right
 		{
-			// player.y -= 4;
-			// player.body.velocity.y = -velocity;
-			player.body.moveTo(speed*2, step, 270);
+			sendMoveToServer(player, now_ts, "up", destx, desty-step)
+			player.body.moveTo(speed, step, 270);
 			player.animations.play('up');
-			desty -= step;
-			move = "up";
 		}
 		else if (cursors.down.isDown) //  Move to the right
 		{
-			// player.y += 4;
-			// player.body.velocity.y = +velocity;
-			player.body.moveTo(speed*2, step, 90);
+			sendMoveToServer(player, now_ts, "down", destx, desty+step)
+			player.body.moveTo(speed, step, 90);
 			player.animations.play('down');
-			desty += step;
-			move = "down";
 		}
-		// else //  Stand still
-		// {
-		// 	player.animations.stop();
-		// 	player.frame = 1;
-		// }
-		if (move != "")
-		{
-			// console.log("last_input: "+player.last_input+" / player_input: "+player.input+" / delta: "+dt_sec)
-			player.last_input = now_ts;
-			PlayerOrdersCount += 1;
-			socket.bcast({id: gameProperties.pseudo, num: PlayerOrdersCount, move: move, x: destx, y: desty })
+		else {
+			player.animations.stop();
+			player.frame = 1;
 		}
 	}
 }
@@ -253,32 +251,7 @@ function updateRemotePlayers() {
 			}
 			entities[i].needUpdate = false;
 		}
-		// if (entities[i].needUpdate) {
-			// if (entities[i].x < entities[i].player.body.x) {
-			// 	entities[i].player.body.x -= pixelpersecond
-			// 	entities[i].player.animations.play('left');
-			// }
-			// else if (entities[i].x > entities[i].player.body.x) {
-			// 	entities[i].player.body.x += pixelpersecond
-			// 	entities[i].player.animations.play('right');
-			// }
-			// else if (entities[i].y < entities[i].player.body.y) {
-			// 	entities[i].player.body.y -= pixelpersecond
-			// 	entities[i].player.animations.play('up');
-			// }
-			// else if (entities[i].y > entities[i].player.body.y) {
-			// 	entities[i].player.body.y += pixelpersecond
-			// 	entities[i].player.animations.play('down');
-			// }
-			// else {
-			// 	entities[i].player.animations.stop();
-			// 	entities[i].player.frame = 1;
-			// }
-		// 	entities[i].needUpdate = false;
-		// }
-		// else {
-		// 	entities[i].player.body.velocity.set(0);
-		// }
+
 	}
 }
 
@@ -290,4 +263,5 @@ function update() {
 }
 
 function render() {
+    game.debug.spriteInfo(player, 100, 100);
 }
