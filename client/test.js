@@ -1,8 +1,10 @@
-var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(320, 320, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
-    game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
-	game.load.image('tiles', 'assets/zombie_a5.png');
+    // game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
+	game.load.image('tiles', 'assets/tile.png');
+	game.load.tilemap('map', 'assets/test.csv', null, Phaser.Tilemap.CSV);
+	// game.load.image('tiles', 'assets/zombie_a5.png');
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
 	game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
 }
@@ -19,8 +21,8 @@ var PlayerIsMoving = false;
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
 	//the world
-	gameWidth: 640,
-	gameHeight: 640,
+	gameWidth: 320,
+	gameHeight: 320,
 	game_elemnt: "gameDiv",
 	in_game: false,
 	pseudo: "",
@@ -37,9 +39,9 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	var new_player = new createPlayer(pseudo, 48, 48);
+	var new_player = new createPlayer(pseudo, 32, 32);
 	// entities.push(new_player);
-	socket.newPlayer({id: gameProperties.pseudo, x: 48, y: 48});
+	socket.newPlayer({id: gameProperties.pseudo, x: 32, y: 32});
 }
 
 function onRemovePlayer (data) {
@@ -119,7 +121,7 @@ function createPlayer (id, startx, starty) {
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 	player.body.setSize(32, 32);
-    player.anchor.setTo(0.5, 0.5);
+    player.anchor.setTo(0, 0);
 
     player.animations.add('left', [3, 4, 5], 10, true);
     player.animations.add('right', [6, 7, 8], 10, true);
@@ -154,42 +156,32 @@ function create() {
 }
 
 function adjustSpritePosition(sprite) {
-	markerx = game.math.snapToFloor(Math.floor(sprite.x), 32) + 16
-	markery = game.math.snapToFloor(Math.floor(sprite.y), 32) + 16
+	markerx = game.math.snapToFloor(Math.ceil(sprite.body.x), 32)
+	markery = game.math.snapToFloor(Math.ceil(sprite.body.y), 32)
 	console.log("Adjusting : x="+sprite.x+" y="+sprite.y+" -> x="+ markerx +" y="+markery)
-	sprite.x = markerx
-	sprite.y = markery
+	sprite.body.x = markerx
+	sprite.body.y = markery
 }
 
 function sendMoveToServer(sprite, tick, move, x, y) {
 	sprite.last_input = tick;
-	adjustSpritePosition(sprite)
 	PlayerOrdersCount += 1;
 	socket.bcast({id: gameProperties.pseudo, num: PlayerOrdersCount, move: move, x: x, y: y })
 	PlayerIsMoving = true
 }
 
 function movePlayerOver(sprite) {
-	// sprite.animations.stop();
-	// sprite.frame = 1;
+	adjustSpritePosition(sprite)
 	PlayerIsMoving = false
 }
 
 function updatePlayer() {
-
-    // playerMoving = yes // Check playerMoving at the start of your movement code, only do movement if it is false. If playerMoving is true, it means the player is still moving to his next square.
-    // var move = game.add.tween(player) // Create a movement tween
-    // move.to({x: newX * 32, y: newY * 32}, 180) // Move to the new grid position over a specific duration - this can be set to whatever you like, onComplete will only call when the animation is done
-    // move.onComplete.add(function() {
-    //     playerMoving = no // Set playerMoving back to false so that the next movement can start.
-    // }, this)
-    // move.start() // Now actually run the tween
-
 	game.physics.arcade.collide(player, layer, movePlayerOver);
 	var step = 32;
     var speed = Math.ceil((1000/window.ServerTimeStep)/32)*32+50;
-	var destx = player.x;
-	var desty = player.y;
+
+	var destx = player.body.x
+	var desty = player.body.y
 
 	var now_ts = +new Date();
     var dt_msec = now_ts - player.last_input
@@ -263,5 +255,4 @@ function update() {
 }
 
 function render() {
-    game.debug.spriteInfo(player, 100, 100);
 }
