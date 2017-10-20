@@ -1,4 +1,4 @@
-var Mob = function (type, id, face, startx, starty) {
+var Mob = function (id, face, startx, starty) {
 	this.sprite = game.add.sprite(startx , starty, "zombies");
 
 	//this is the unique socket id. We use it as a unique name for enemy
@@ -22,7 +22,7 @@ var Mob = function (type, id, face, startx, starty) {
 	this.sprite.body.onMoveComplete.add(this.moveMobOver, this);
 }
 
-User.prototype.adjustSpritePosition = function() {
+Mob.prototype.adjustSpritePosition = function() {
 	markerx = game.math.snapToFloor(Math.ceil(this.sprite.dest_x), 32)
 	markery = game.math.snapToFloor(Math.ceil(this.sprite.dest_y), 32)
 	console.log("Adjusting : x="+this.sprite.x+" y="+this.sprite.y+" -> x="+ markerx +" y="+markery)
@@ -30,7 +30,7 @@ User.prototype.adjustSpritePosition = function() {
 	this.sprite.body.y = markery
 }
 
-User.prototype.moveMobOver = function() {
+Mob.prototype.moveMobOver = function() {
 	this.adjustSpritePosition()
 	this.sprite.PlayerIsMoving = false
 	this.sprite.animations.stop();

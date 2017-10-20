@@ -28,13 +28,14 @@ function Connection(addr, callback) {
 				connEvt["enemy_move"].call(this, obj);
                 break;
 			case "[NUSR]":
-				obj = JSON.parse(evt.data.substr(6));
+				// obj = JSON.parse(evt.data.substr(6));
 				// obj = evt.data.substr(6);
                 // console.log("RCPT: "+obj);
-				connEvt["new_enemyPlayer"].call(this, obj);
-				break;
+				// connEvt["new_enemyPlayer"].call(this, obj);
+				// break;
 			case "[WLCM]":
 				pseudo = evt.data.substr(6);
+				console.log("WELCOME RECEIVED")
 				connEvt["userlogged"].call(this, pseudo);
 				break;
     		default:;

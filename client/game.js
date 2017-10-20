@@ -41,9 +41,9 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	player = new User("P", pseudo, 'h1', 32, 32);
+	player = new Local(pseudo, 'h1', 32, 32);
 	// entities.push(new_player);
-	socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
+	// socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
 }
 
 function onRemovePlayer (data) {
@@ -58,17 +58,14 @@ function onRemovePlayer (data) {
 	entities.splice(entities.indexOf(removePlayer), 1);
 }
 
-function onNewPlayer (data) {
-	console.log(data);
-	if (data.id == gameProperties.pseudo)
-		return
+function NewPlayer (data) {
 	var movePlayer = findplayerbyid (data.id);
 	if (findplayerbyid (data.id)) return
 	else {
 		if (data.type == "P")
-			var new_enemy = new User(data.type, data.id, data.face, data.x, data.y);
+			var new_enemy = new Remote(data.id, data.face, data.x, data.y);
 		else
-			var new_enemy = new Mob(data.type, data.id, data.face, data.x, data.y);
+			var new_enemy = new Mob(data.id, data.face, data.x, data.y);
 		entities.push(new_enemy);
 	}
 }
@@ -80,9 +77,10 @@ function onEnemyMove (data) {
 
 	var movePlayer = findplayerbyid (data.id);
 	if (!movePlayer) {
-		onNewPlayer(data)
+		NewPlayer(data)
 		return;
 	}
+		// console.log(movePlayer);
 	movePlayer.sprite.newMove = data
 
 	movePlayer.sprite.dest_x = data.x;
@@ -115,9 +113,9 @@ function create() {
 
 	socket = new Connection(window.Server, onsocketConnected);
 	socket.on("userlogged", onuserlogged);
-	socket.on("new_enemyPlayer", onNewPlayer);
+	// socket.on("new_enemyPlayer", onNewPlayer);
 	socket.on("enemy_move", onEnemyMove);
-	socket.on('remove_player', onRemovePlayer);
+	// socket.on('remove_player', onRemovePlayer);
 }
 
 function updatePlayer() {
@@ -146,19 +144,20 @@ function updatePlayer() {
 function updateRemotePlayers() {
 	for (var i = 0; i < entities.length; i++) {
 		if (entities[i].needUpdate() && !entities[i].isMoving()) {
+			// console.log(entities[i])
 			entities[i].sprite.PlayerIsMoving = true
 			entities[i].sprite.needUpdate = false
 			if (entities[i].sprite.newMove.move == "left") {
-				player.moveLeft(step, speed)
+				entities[i].moveLeft(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "right") {
-				player.moveRight(step, speed)
+				entities[i].moveRight(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "up") {
-				player.moveUp(step, speed)
+				entities[i].moveUp(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "down") {
-				player.moveDown(step, speed)
+				entities[i].moveDown(step, speed)
 			}
 		}
 	}
