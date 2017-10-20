@@ -21,7 +21,6 @@ class User
 	    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 
 		this.sprite.PlayerIsMoving = false
-		this.sprite.body.onMoveComplete.add(this.moveUserOver, this);
 	}
 
 	sendMoveToServer(move) {
@@ -33,13 +32,6 @@ class User
 		// console.log("Adjusting : x="+this.sprite.x+" y="+this.sprite.y+" -> x="+ markerx +" y="+markery)
 		this.sprite.body.x = markerx
 		this.sprite.body.y = markery
-	}
-
-	moveUserOver() {
-		this.adjustSpritePosition()
-		this.sprite.PlayerIsMoving = false
-		this.sprite.animations.stop();
-		this.sprite.frame = 1;
 	}
 
 	isMoving() {

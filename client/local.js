@@ -5,6 +5,14 @@ class Local extends User
 
 		this.sprite.isPlayer = true
 		this.sprite.PlayerOrdersCount = 0
+		this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
+	}
+
+	moveLocalOver() {
+		this.adjustSpritePosition()
+		this.sprite.PlayerIsMoving = false
+		// this.sprite.animations.stop();
+		// this.sprite.frame = 1;
 	}
 
 	sendMoveToServer(move) {

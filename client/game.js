@@ -138,6 +138,10 @@ function updatePlayer() {
 		{
 			player.moveDown(step, speed)
 		}
+		else {
+			player.sprite.animations.stop();
+			player.sprite.frame = 1;
+		}
 	}
 }
 
