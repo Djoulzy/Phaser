@@ -1,0 +1,24 @@
+{
+  "name": "Phaser",
+  "version": "0.0.1",
+  "description": "phaser.js",
+  "author": "Djoulzy/Nans",
+  "license": "MI6",
+  "devDependencies": {
+    "auto-reload-brunch": "^1.8.0",
+    "brunch": "^1.8.5",
+    "javascript-brunch": "^1.7.1",
+    "less-brunch": "^1.8.1"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "morgan": "^1.6.1",
+    "path": "^0.12.7",
+    "socket.io": "^1.3.6",
+    "uglify-js-brunch": "^1.7.8"
+  },
+  "scripts": {
+    "start": "brunch watch --server",
+    "build": "brunch build --production"
+  }
+}
