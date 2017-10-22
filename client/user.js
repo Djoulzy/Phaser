@@ -29,7 +29,7 @@ class User
 	adjustSpritePosition() {
 		var markerx = game.math.snapToFloor(Math.ceil(this.sprite.dest_x), 32)
 		var markery = game.math.snapToFloor(Math.ceil(this.sprite.dest_y), 32)
-		// console.log("Adjusting : x="+this.sprite.x+" y="+this.sprite.y+" -> x="+ markerx +" y="+markery)
+		// console.log("Adjusting : x="+this.sprite.body.x+" y="+this.sprite.body.y+" -> x="+ markerx +" y="+markery)
 		this.sprite.body.x = markerx
 		this.sprite.body.y = markery
 	}

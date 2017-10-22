@@ -24,7 +24,7 @@ function Connection(addr, callback) {
     			break;
             case "[BCST]":
                 obj = JSON.parse(evt.data.substr(6));
-                // console.log("RCPT: "+obj);
+                // console.log("RCPT: "+evt.data.substr(6));
 				connEvt["enemy_move"].call(this, obj);
                 break;
 			case "[NUSR]":

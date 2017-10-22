@@ -18,7 +18,8 @@ class Local extends User
 	sendMoveToServer(move) {
 		if (this.sprite.isPlayer) {
 			this.sprite.PlayerOrdersCount += 1;
-			socket.bcast({type: "P", id: this.sprite.User_id, face: this.sprite.face, num: this.sprite.PlayerOrdersCount, move: move, x: player.sprite.dest_x, y: player.sprite.dest_y })
+			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
+			socket.bcast({type: "P", id: this.sprite.User_id, face: this.sprite.face, num: this.sprite.PlayerOrdersCount, move: move, speed: 1, x: player.sprite.dest_x, y: player.sprite.dest_y })
 		}
 		this.sprite.PlayerIsMoving = true
 	}
