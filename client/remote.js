@@ -18,8 +18,8 @@ class Remote extends User
 	moveRemoteOver() {
 		this.adjustSpritePosition()
 		this.sprite.PlayerIsMoving = false
-		this.sprite.animations.stop();
-		this.sprite.frame = 1;
+		// this.sprite.animations.stop();
+		// this.sprite.frame = 1;
 	}
 
 	moveLeft(step, speed) {

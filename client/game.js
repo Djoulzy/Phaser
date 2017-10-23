@@ -18,8 +18,9 @@ var cursors;
 var socket;
 var entities = [];
 var step = 32;
-var baseSpeed = Math.ceil((1000/window.ServerTimeStep)/32)*32;
-var speed = baseSpeed+50;
+var ServerSpeed = 1000/window.ServerTimeStep
+var baseSpeed = Math.ceil(ServerSpeed/step)*step;
+var speed = baseSpeed + 50
 
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
@@ -153,19 +154,19 @@ function updateRemotePlayers() {
 			// console.log(entities[i])
 			entities[i].sprite.PlayerIsMoving = true
 			entities[i].sprite.needUpdate = false
-			mobSpeed = entities[i].sprite.newMove.speed * baseSpeed
+			mobSpeed = Math.ceil((ServerSpeed*entities[i].sprite.newMove.speed)/step)*step + 50;
 			// console.log("Move to "+entities[i].sprite.dest_x+" "+entities[i].sprite.dest_y)
 			if (entities[i].sprite.newMove.move == "left") {
-				entities[i].moveLeft(step, speed)
+				entities[i].moveLeft(step, mobSpeed)
 			}
 			else if (entities[i].sprite.newMove.move == "right") {
-				entities[i].moveRight(step, speed)
+				entities[i].moveRight(step, mobSpeed)
 			}
 			else if (entities[i].sprite.newMove.move == "up") {
-				entities[i].moveUp(step, speed)
+				entities[i].moveUp(step, mobSpeed)
 			}
 			else if (entities[i].sprite.newMove.move == "down") {
-				entities[i].moveDown(step, speed)
+				entities[i].moveDown(step, mobSpeed)
 			}
 		}
 	}
