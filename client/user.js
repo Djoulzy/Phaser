@@ -21,9 +21,9 @@ class User
 	    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 
 		this.sprite.PlayerIsMoving = false
-	}
 
-	sendMoveToServer(move) {
+		this.line = new Phaser.Line(0, 0, 100, 100);
+	    this.graphics=game.add.graphics(0,0);
 	}
 
 	adjustSpritePosition() {
@@ -32,6 +32,7 @@ class User
 		// console.log("Adjusting : x="+this.sprite.body.x+" y="+this.sprite.body.y+" -> x="+ markerx +" y="+markery)
 		this.sprite.body.x = markerx
 		this.sprite.body.y = markery
+		// this.graphics.clear();
 	}
 
 	isMoving() {
@@ -40,41 +41,5 @@ class User
 
 	needUpdate() {
 		return this.sprite.needUpdate
-	}
-
-	moveLeft(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x - step
-		this.sprite.dest_y = this.sprite.body.y
-
-		this.sendMoveToServer('left')
-		this.sprite.body.moveTo(speed, step, 180);
-		this.sprite.animations.play('left');
-	}
-
-	moveRight(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x + step
-		this.sprite.dest_y = this.sprite.body.y
-
-		this.sendMoveToServer('right')
-		this.sprite.body.moveTo(speed, step, 0);
-		this.sprite.animations.play('right');
-	}
-
-	moveUp(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y - step
-
-		this.sendMoveToServer('up')
-		this.sprite.body.moveTo(speed, step, 270);
-		this.sprite.animations.play('up');
-	}
-
-	moveDown(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y + step
-
-		this.sendMoveToServer('down')
-		this.sprite.body.moveTo(speed, step, 90);
-		this.sprite.animations.play('down');
 	}
 }

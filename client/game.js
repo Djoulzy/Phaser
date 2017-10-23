@@ -112,6 +112,7 @@ function create() {
 	zeWorld.setCollisionBetween(45, 100);
 	layer.debug = true;
 
+	game.stage.disableVisibilityChange = true;
 	socket = new Connection(window.Server, onsocketConnected);
 	socket.on("userlogged", onuserlogged);
 	// socket.on("new_enemyPlayer", onNewPlayer);
@@ -152,18 +153,19 @@ function updateRemotePlayers() {
 			// console.log(entities[i])
 			entities[i].sprite.PlayerIsMoving = true
 			entities[i].sprite.needUpdate = false
+			mobSpeed = entities[i].sprite.newMove.speed * baseSpeed
 			// console.log("Move to "+entities[i].sprite.dest_x+" "+entities[i].sprite.dest_y)
 			if (entities[i].sprite.newMove.move == "left") {
-				entities[i].moveLeft(step, entities[i].sprite.newMove.speed * baseSpeed)
+				entities[i].moveLeft(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "right") {
-				entities[i].moveRight(step, entities[i].sprite.newMove.speed * baseSpeed)
+				entities[i].moveRight(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "up") {
-				entities[i].moveUp(step, entities[i].sprite.newMove.speed * baseSpeed)
+				entities[i].moveUp(step, speed)
 			}
 			else if (entities[i].sprite.newMove.move == "down") {
-				entities[i].moveDown(step, entities[i].sprite.newMove.speed * baseSpeed)
+				entities[i].moveDown(step, speed)
 			}
 		}
 	}
