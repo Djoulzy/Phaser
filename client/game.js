@@ -1,9 +1,9 @@
-var game = new Phaser.Game(320, 320, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(640, 320, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
     // game.load.tilemap('map', 'assets/zombie_a5.csv', null, Phaser.Tilemap.CSV);
 	game.load.image('tiles', 'assets/tile.png');
-	game.load.tilemap('map', 'assets/test.csv', null, Phaser.Tilemap.CSV);
+	game.load.tilemap('map', 'assets/tile.csv', null, Phaser.Tilemap.CSV);
 	// game.load.image('tiles', 'assets/zombie_a5.png');
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
 	game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
@@ -25,7 +25,7 @@ var speed = baseSpeed + 50
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
 	//the world
-	gameWidth: 320,
+	gameWidth: 640,
 	gameHeight: 320,
 	game_elemnt: "gameDiv",
 	in_game: false,
@@ -44,6 +44,7 @@ function onuserlogged(pseudo) {
 	gameProperties.pseudo = pseudo;
 
 	player = new Local(pseudo, 'h1', 32, 32);
+	game.camera.follow(player.sprite);
 	// entities.push(new_player);
 	// socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
 }
@@ -65,9 +66,9 @@ function NewPlayer (data) {
 	if (findplayerbyid (data.id)) return
 	else {
 		if (data.type == "P")
-			var new_enemy = new Remote(data.id, data.face, data.x, data.y);
+			var new_enemy = new Remote(data.id, data.face, "", data.x, data.y);
 		else
-			var new_enemy = new Mob(data.id, data.face, data.x, data.y);
+			var new_enemy = new Mob(data.id, "zombies", data.face, data.x, data.y);
 		entities.push(new_enemy);
 	}
 }

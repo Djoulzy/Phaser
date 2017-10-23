@@ -1,12 +1,13 @@
 class Remote extends User
 {
-	constructor(id, face, startx, starty) {
+	constructor(id, face, subview, startx, starty) {
 		super(id, face, startx, starty)
 
 		this.sprite.isPlayer = false
 		this.sprite.PlayerOrdersCount = 0
 		this.sprite.body.onMoveComplete.add(this.moveRemoteOver, this);
 		this.graphics.lineStyle(2, 0x14c818 , 1);
+		this.initAnims(subview)
 	}
 
 	debugLine() {

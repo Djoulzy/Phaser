@@ -3,6 +3,7 @@ class Local extends User
 	constructor(id, face, startx, starty) {
 		super(id, face, startx, starty)
 
+		this.initAnims()
 		this.sprite.isPlayer = true
 		this.sprite.PlayerOrdersCount = 0
 		this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
