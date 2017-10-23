@@ -36,7 +36,7 @@ Login.prototype = {
 
         function saveName(){
             me.game.mainPlayerName = nickNameInput.value;
-            me.game.keyCrypt = Encrypt_b64(me.game.mainPlayerName+'|USER');
+            me.game.keyCrypt = Encrypt_b64(me.game.mainPlayerName+'|toto'+'|USER');
 
             if(me.game.mainPlayerName){
                 me.cleanDom();

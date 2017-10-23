@@ -27,6 +27,6 @@ module.exports = config:
         'styles/app.css'
 
   plugins:
-
     uglify:
       mangle: false
+    

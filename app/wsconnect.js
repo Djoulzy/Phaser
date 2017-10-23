@@ -1,4 +1,6 @@
-function Connection(addr, callback) {
+"use strict";
+
+var Connection = function (addr, key) {
     var ws = new WebSocket ('ws://'+addr+'/ws');
     var brothers = new Set();
     var connEvt = new Set();
@@ -7,7 +9,10 @@ function Connection(addr, callback) {
 		connEvt[evt] = callback
 	}
 
-    ws.onopen = callback
+    ws.onopen = function(evt){
+			console.log('onopen');
+			ws.send("[HELO]" + key);
+		}
 
     ws.onmessage = function(evt) {
     	switch(evt.data.substr(0, 6))
@@ -66,13 +71,13 @@ function Connection(addr, callback) {
 		}
 	}
 
-	this.logon = function(pass) {
+	/*this.logon = function(pass) {
         ws.send("[HELO]" + pass);
 		// connEvt["userlogged"].call(this);
-	}
+	}*/
 
     this.bcast = function(message) {
-		// console.log(message);
+		 console.log(message);
         ws.send("[BCST]" + JSON.stringify(message))
     }
 
@@ -81,3 +86,4 @@ function Connection(addr, callback) {
         ws.send("[NUSR]" + JSON.stringify(message))
     }
 }
+module.exports = Connection;

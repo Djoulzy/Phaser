@@ -110,8 +110,10 @@
   globals.require = require;
 })();
 require.register("config", function(exports, require, module) {
-window.Server = "10.31.100.200:8080";
-window.ServerTimeStep = 10;
+'use strict';
+
+exports.ServerHost = "localhost:8080";
+exports.ServerTimeStep = 10;
 
 });
 
@@ -777,7 +779,200 @@ function render() {
 
 });
 
-;require.register("gameStart", function(exports, require, module) {
+;require.register("gameObjects/CharacterObj", function(exports, require, module) {
+"use strict";
+
+var CharacterSpr = require('gameSprites/CharacterSpr');
+
+var CharacterObj = function(game, x, y, isMainPlayer) {
+    this.configure(game, isMainPlayer);
+    this.setupSprite(x, y);
+    this.resetCurrentPosition();
+};
+
+CharacterObj.prototype.configure = function(game, isMainPlayer){
+    this.game = game;
+    this.isMainPlayer = isMainPlayer;
+
+};
+
+CharacterObj.prototype.setupSprite = function(x, y){
+    this.sprite = new CharacterSpr(this.game, x, y, this.isMainPlayer);
+    this.game.add.existing(this.sprite);
+};
+
+CharacterObj.prototype.resetCurrentPosition  = function(){
+    this.moving = false;
+    this.sprite.stopAnimation();
+};
+
+CharacterObj.prototype.manageMouvement = function(){
+  this.cursors = this.game.input.keyboard.createCursorKeys();
+
+if (!this.sprite.isMoving()) {
+    if (this.cursors.left.isDown)
+    {
+        this.sprite.walkLeft();
+    }
+    else if (this.cursors.right.isDown)
+    {
+        this.sprite.walkRight();
+    }
+    else if (this.cursors.up.isDown)
+  {
+
+    this.sprite.walkUp();
+  }
+  else if (this.cursors.down.isDown)
+  {
+
+    this.sprite.walkDown();
+  }
+    else
+    {
+        //  Stand still
+        this.resetCurrentPosition();
+    }
+}
+}
+
+module.exports = CharacterObj;
+
+});
+
+require.register("gameSprites/CharacterSpr", function(exports, require, module) {
+"use strict";
+
+var Config = require('config');
+
+var CharacterSpr = function(game, dest_x, dest_y) {
+  this.face = 'h1';
+
+  this.isPlayer = true
+  this.PlayerOrdersCount = 0
+
+  this.step = 32;
+  this.speed = Math.ceil((1000/Config.ServerTimeStep)/32)*32+50;
+
+
+
+
+  Phaser.Sprite.call(this, game, dest_x, dest_y, this.face);
+  this.enableCollision();
+  this.setupAnimations();
+};
+
+CharacterSpr.prototype = Object.create(Phaser.Sprite.prototype);
+CharacterSpr.prototype.constructor = CharacterSpr;
+
+CharacterSpr.prototype.enableCollision = function() {
+    this.game.physics.arcade.enable(this);
+    this.body.collideWorldBounds = true;
+};
+
+CharacterSpr.prototype.adjustSpritePosition = function() {
+  var markerx = this.game.math.snapToFloor(Math.ceil(this.dest_x), 32)
+  var markery = this.game.math.snapToFloor(Math.ceil(this.dest_y), 32)
+  // console.log("Adjusting : x="+this.sprite.body.x+" y="+this.sprite.body.y+" -> x="+ markerx +" y="+markery)
+  this.body.x = markerx
+  this.body.y = markery
+
+  this.PlayerIsMoving = false
+  // this.graphics.clear();
+}
+
+CharacterSpr.prototype.setupAnimations = function() {
+    //this.anchor.setTo(0.5, 0.5);
+
+    this.User_id = this.game.mainPlayerName;
+		this.needUpdate = false;
+		this.newMove = null;
+
+    this.body.setSize(32, 32);
+    this.PlayerIsMoving = false
+
+    this.animations.add('left', [3, 4, 5], 10, true);
+	  this.animations.add('right', [6, 7, 8], 10, true);
+	  this.animations.add('up', [9, 10, 11], 10, true);
+	  this.animations.add('down', [0, 1, 2], 10, true);
+
+    this.line = new Phaser.Line(0, 0, 100, 100);
+	  this.graphics=this.game.add.graphics(0,0);
+    this.graphics.lineStyle(2, 0xffd900, 1);
+
+    this.body.onMoveComplete.add(this.adjustSpritePosition, this);
+
+};
+
+CharacterSpr.prototype.sendMoveToServer = function(move) {
+
+    this.PlayerOrdersCount += 1;
+    // console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
+    this.graphics.moveTo(this.body.x + 16, this.body.y + 16);//moving position of graphic if you draw mulitple lines
+      this.graphics.lineTo(this.dest_x + 16, this.dest_y + 16);
+      this.graphics.endFill();
+
+    this.game.socket.bcast({type: "P", id: this.User_id, face: this.face, num: this.PlayerOrdersCount, move: move, speed: 1, x: this.dest_x, y: this.dest_y })
+
+
+  this.graphics.moveTo(this.body.x + 16, this.body.y + 16);//moving position of graphic if you draw mulitple lines
+  this.graphics.lineTo(this.dest_x + 16, this.dest_y + 16);
+  this.graphics.endFill();
+
+  this.PlayerIsMoving = true;
+};
+
+CharacterSpr.prototype.walkLeft = function(){
+    this.dest_x = this.body.x - this.step
+    this.dest_y = this.body.y
+
+    this.sendMoveToServer('left')
+    this.body.moveTo(this.speed, this.step, 180);
+    this.animations.play('left');
+};
+
+CharacterSpr.prototype.walkRight = function(){
+    this.dest_x = this.body.x + this.step
+    this.dest_y = this.body.y
+
+    this.sendMoveToServer('right')
+    this.body.moveTo(this.speed, this.step, 0);
+    this.animations.play('right');
+};
+
+CharacterSpr.prototype.walkUp = function(){
+  this.dest_x = this.body.x
+  this.dest_y = this.body.y - this.step
+
+  this.sendMoveToServer('up')
+  this.body.moveTo(this.speed, this.step, 270);
+  this.animations.play('up');
+};
+
+CharacterSpr.prototype.walkDown = function(){
+  this.dest_x = this.body.x
+  this.dest_y = this.body.y + this.step
+
+  this.sendMoveToServer('down')
+  this.body.moveTo(this.speed, this.step, 90);
+  this.animations.play('down');
+};
+
+CharacterSpr.prototype.stopAnimation = function(){
+    this.animations.stop();
+    this.PlayerIsMoving = false
+    this.frame = 1;
+};
+
+CharacterSpr.prototype.isMoving = function(){
+    return this.PlayerIsMoving
+};
+
+module.exports = CharacterSpr;
+
+});
+
+require.register("gameStart", function(exports, require, module) {
 "use strict";
 
 var gameBootstrapper = {
@@ -1045,7 +1240,136 @@ User.prototype.moveMobOver = function() {
 
 });
 
-;require.register("player", function(exports, require, module) {
+;require.register("network/MapDataClient", function(exports, require, module) {
+'use strict';
+
+var CollectableObj = require('client/gameObjects/CollectableObj');
+var scoreBoard = require('client/utils/ScoreBoard');
+
+var serverSocket, concernedPhaserState;
+var collectableObjects = [];
+
+function synchronize(socket, phaserState){
+    serverSocket = socket;
+    concernedPhaserState = phaserState;
+
+    // configure incoming traffic
+    serverSocket.on('SERVER_PLAYER_ID', onReadyToRequestCollectables);
+    serverSocket.on('SERVER_ALL_COLLECTABLES', onReceiveAllCollectables);
+    serverSocket.on('SERVER_COLLECTABLE_DESTROY', onDestroyCollectable);
+    serverSocket.on('SERVER_UPDATE_PLAYER_SCORES', onReceiveScores);
+
+    // initialize score board
+    scoreBoard.init();
+}
+
+function onReadyToRequestCollectables(){
+    serverSocket.emit('CLIENT_GET_ALL_COLLECTABLES');
+}
+
+function onDestroyCollectable(newCollectableInfo){
+    var collectableIdToDestroy = newCollectableInfo.uid;
+
+    var collectableToDestroy = collectableObjects.filter(function(collectable){
+        return (collectable.uid === collectableIdToDestroy);
+    })[0];
+
+
+    if(collectableToDestroy !== undefined){
+        collectableToDestroy.destroy();
+    }
+}
+
+function onReceiveScores(playersList){
+    scoreBoard.setScores(playersList);
+}
+
+function tryToCollectForPlayer(collectable, player){
+    serverSocket.emit('CLIENT_TRY_TO_COLLECT', { collectableId: collectable.uid, playerId: player.uid});
+}
+
+
+
+function onReceiveAllCollectables(collectableList) {
+    destroyAllCollectables();
+
+    collectableList.forEach(function(collectable){
+
+        if(collectable.isAvailable){
+            var colObj = new CollectableObj({
+                game : concernedPhaserState.game,
+                x: collectable.x,
+                y: collectable.y,
+                isAvailable: collectable.isAvailable,
+                type: collectable.type,
+                uid: collectable.uid
+            });
+        }
+        collectableObjects.push(colObj);
+    });
+}
+
+function destroyAllCollectables(){
+    collectableObjects.forEach(function(colObject){
+        if(colObject){
+            colObject.destroy();
+        }
+    });
+    collectableObjects = [];
+}
+
+function setConcernedPhaserState(state){
+    concernedPhaserState = state;
+}
+
+module.exports = {
+    synchronize : synchronize,
+    tryToCollectForPlayer: tryToCollectForPlayer
+};
+});
+
+require.register("network/NetworkManager", function(exports, require, module) {
+'use strict';
+
+function NetworkManager() {
+
+}
+
+NetworkManager.prototype.openConnection = function() {
+    this.ws = new WebSocket('ws://localhost:8080/ws');
+    this.connected = false;
+    this.ws.onmessage = this.onMessage.bind(this);
+    this.ws.onerror = this.displayError.bind(this);
+    this.ws.onopen = this.connectionOpen.bind(this);
+};
+
+NetworkManager.prototype.connectionOpen = function() {
+    this.connected = true;
+    this.ws.send("[HELO]" + key);
+};
+
+NetworkManager.prototype.bcast = function(message) {
+ console.log(message);
+ this.ws.send("[BCST]" + JSON.stringify(message))
+}
+
+NetworkManager.prototype.onMessage = function(message) {
+    myText.text = myText.text + message.data;
+    var msg = JSON.parse(message.data);
+    sprite.x = msg.x;
+    sprite.y = msg.y;
+};
+
+NetworkManager.prototype.displayError = function(err) {
+    console.log('Websocketerror: ' + err);
+};
+
+
+module.exports = NetworkManager;
+
+});
+
+require.register("player", function(exports, require, module) {
 var User = function (type, id, face, startx, starty) {
 	this.sprite = game.add.sprite(startx , starty, face);
 
@@ -1158,7 +1482,7 @@ Boot.prototype = {
     },
 
     onLoadComplete: function(){
-        this.game.state.start('play');
+        this.game.state.start('login');
     },
 
     loadAssets: function(){
@@ -1227,7 +1551,7 @@ Login.prototype = {
 
         function saveName(){
             me.game.mainPlayerName = nickNameInput.value;
-            me.game.keyCrypt = Encrypt_b64(me.game.mainPlayerName+'|USER');
+            me.game.keyCrypt = Encrypt_b64(me.game.mainPlayerName+'|toto'+'|USER');
 
             if(me.game.mainPlayerName){
                 me.cleanDom();
@@ -1251,6 +1575,12 @@ module.exports = Login;
 require.register("states/play", function(exports, require, module) {
 'use strict';
 
+var Connection = require('wsconnect');
+var Config = require('config');
+var NetworkManager = require('network/NetworkManager');
+
+var CharacterObj = require('gameObjects/CharacterObj');
+
 
 function Play(){}
 
@@ -1264,25 +1594,85 @@ Play.prototype = {
 
     	this.game.load.atlas('zombies', 'gameAssets/ZombieSheet.png', 'gameAssets/ZombieSheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
     },
-    create: function(){
-      console.log('creatttttttte', this.game.keyCrypt);
+    initSocket: function(){
+        this.game.socket = new Connection(Config.ServerHost, this.game.keyCrypt);
 
+       	this.game.socket.on("userlogged", this.addMainPlayer());
+
+
+     //  	this.socket.on("new_enemyPlayer", onNewPlayer);
+     //  	this.socket.on("enemy_move", onEnemyMove);
+     //  	this.socket.on('remove_player', onRemovePlayer);
+    },
+    initMap: function(){
+        this.zeWorld = this.game.add.tilemap('map', 32, 32);
+        this.zeWorld.addTilesetImage('tiles');
+        this.layer = this.zeWorld.createLayer(0);
+        this.game.physics.arcade.enable(this.layer);
+        this.layer.resizeWorld();
+        this.zeWorld.setCollisionBetween(45, 100);
+        this.layer.debug = true;
+    },
+    addMainPlayer: function(){
+
+        	//create a main player object for the connected user to control
+        	//gameProperties.in_game = true;
+        	//gameProperties.pseudo = pseudo;
+            console.log('addMAINPKLAYER',this.game.socket);
+        	//player = new User("P", pseudo, 'h1', 32, 32);
+        	this.player = new CharacterObj(this.game, 32, 32);
+        	// entities.push(new_player);
+        	this.serverSocket.bcast({type: "P", id: this.game.mainPlayerName, face: "h1", x: 32, y: 32});
+
+    },
+    create: function(){
 
       this.game.physics.startSystem(Phaser.Physics.ARCADE);
-     	this.cursors = this.game.input.keyboard.createCursorKeys();
+      this.cursors = this.game.input.keyboard.createCursorKeys();
 
-     	this.zeWorld = this.game.add.tilemap('map', 32, 32);
-      this.zeWorld.addTilesetImage('tiles');
-      this.layer = this.zeWorld.createLayer(0);
-     	this.game.physics.arcade.enable(this.layer);
-      this.layer.resizeWorld();
-     	this.zeWorld.setCollisionBetween(45, 100);
-     	this.layer.debug = true;
+
+      this.initMap();
+     // this.initSocket();
+      this.connectToServer();
+      this.addMainPlayer();
+
     },
 
     update: function(){
+        this.player.manageMouvement();
+    },
 
+
+    connectToServer: function(){
+
+        this.serverSocket = new NetworkManager(this.game.keyCrypt);
+/*
+        NetworkManager.onOtherPlayerConnected(function(otherPlayerInfo){
+            ChatManager.systemMessage('info', otherPlayerInfo.nickname + ' is connected');
+            me.addOtherPlayer(otherPlayerInfo);
+        });
+
+        // set what to do when the current player receive movement information about another player
+        NetworkManager.onOtherPlayerMove(function(movementInfo){
+            var otherPlayerToMove = searchById(me.otherPlayers, movementInfo.uid);
+            if(otherPlayerToMove){
+                otherPlayerToMove.moveTo(movementInfo.x, movementInfo.y);
+            }
+        });
+
+        // set what to do when the client receive the players list from the server
+        NetworkManager.onUpdatePlayerList(function(receivedList){
+            me.removeDisconnected(receivedList);
+            me.addConnected(receivedList);
+
+        });
+        this.otherPlayers = [];
+
+        this.synchronizeMapData(serverSocket);*/
     }
+
+
+
 };
 
 module.exports = Play;
@@ -1607,7 +1997,9 @@ module.exports = {
 });
 
 require.register("wsconnect", function(exports, require, module) {
-function Connection(addr, callback) {
+"use strict";
+
+var Connection = function (addr, key) {
     var ws = new WebSocket ('ws://'+addr+'/ws');
     var brothers = new Set();
     var connEvt = new Set();
@@ -1616,7 +2008,10 @@ function Connection(addr, callback) {
 		connEvt[evt] = callback
 	}
 
-    ws.onopen = callback
+    ws.onopen = function(evt){
+			console.log('onopen');
+			ws.send("[HELO]" + key);
+		}
 
     ws.onmessage = function(evt) {
     	switch(evt.data.substr(0, 6))
@@ -1675,13 +2070,13 @@ function Connection(addr, callback) {
 		}
 	}
 
-	this.logon = function(pass) {
+	/*this.logon = function(pass) {
         ws.send("[HELO]" + pass);
 		// connEvt["userlogged"].call(this);
-	}
+	}*/
 
     this.bcast = function(message) {
-		// console.log(message);
+		 console.log(message);
         ws.send("[BCST]" + JSON.stringify(message))
     }
 
@@ -1690,8 +2085,9 @@ function Connection(addr, callback) {
         ws.send("[NUSR]" + JSON.stringify(message))
     }
 }
+module.exports = Connection;
 
 });
 
-;
+
 //# sourceMappingURL=app.js.map
