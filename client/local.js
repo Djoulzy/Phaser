@@ -6,19 +6,14 @@ class Local extends User
 		this.initAnims()
 		this.sprite.isPlayer = true
 		this.sprite.PlayerOrdersCount = 0
-		this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
+		// this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
 		this.graphics.lineStyle(2, 0xffd900, 1);
-	}
-
-	moveLocalOver() {
-		this.adjustSpritePosition()
-		this.sprite.PlayerIsMoving = false
-		// this.sprite.animations.stop();
-		// this.sprite.frame = 1;
+		this.bearing = "down"
 	}
 
 	sendMoveToServer(move) {
 		if (this.sprite.isPlayer) {
+			this.bearing = move
 			this.sprite.PlayerOrdersCount += 1;
 			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
 			this.graphics.moveTo(this.sprite.body.x + 16, this.sprite.body.y + 16);//moving position of graphic if you draw mulitple lines
@@ -27,6 +22,12 @@ class Local extends User
 			socket.bcast({type: "P", id: this.sprite.User_id, face: this.sprite.face, num: this.sprite.PlayerOrdersCount, move: move, speed: 1, x: this.sprite.dest_x, y: this.sprite.dest_y })
 		}
 		this.sprite.PlayerIsMoving = true
+	}
+
+	moveOver() {
+		this.adjustSpritePosition()
+		this.sprite.PlayerIsMoving = false
+		this.sprite.animations.stop();
 	}
 
 	moveLeft(step, speed) {

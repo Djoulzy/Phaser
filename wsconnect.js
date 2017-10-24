@@ -35,7 +35,6 @@ function Connection(addr, callback) {
 				// break;
 			case "[WLCM]":
 				pseudo = evt.data.substr(6);
-				console.log("WELCOME RECEIVED")
 				connEvt["userlogged"].call(this, pseudo);
 				break;
     		default:;

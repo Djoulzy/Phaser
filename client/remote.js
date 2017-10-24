@@ -5,8 +5,9 @@ class Remote extends User
 
 		this.sprite.isPlayer = false
 		this.sprite.PlayerOrdersCount = 0
-		this.sprite.body.onMoveComplete.add(this.moveRemoteOver, this);
+		// this.sprite.body.onMoveComplete.add(this.moveRemoteOver, this);
 		this.graphics.lineStyle(2, 0x14c818 , 1);
+		this.moves = new Array()
 		this.initAnims(subview)
 	}
 
@@ -16,10 +17,12 @@ class Remote extends User
 		this.graphics.endFill();
 	}
 
-	moveRemoteOver() {
+	moveOver() {
 		this.adjustSpritePosition()
 		this.sprite.PlayerIsMoving = false
-		// this.sprite.animations.stop();
+		if (this.moves.length == 0) {
+			this.sprite.animations.stop();
+		}
 		// this.sprite.frame = 1;
 	}
 
