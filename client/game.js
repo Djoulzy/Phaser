@@ -1,8 +1,8 @@
-var game = new Phaser.Game(640, 320, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
-	game.load.image('tiles', 'assets/tile.png');
-	game.load.tilemap('map', 'assets/tile.csv', null, Phaser.Tilemap.CSV);
+	game.load.image('tiles', 'assets/zombie_tiles.png');
+	game.load.tilemap('map', 'assets/zone1.json', null, Phaser.Tilemap.TILED_JSON);
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
 	game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
 
@@ -28,7 +28,7 @@ var gameProperties = {
 	//this is the actual game size to determine the boundary of
 	//the world
 	gameWidth: 640,
-	gameHeight: 320,
+	gameHeight: 640,
 	game_elemnt: "gameDiv",
 	in_game: false,
 	pseudo: "",
@@ -111,8 +111,8 @@ function create() {
     layer = zeWorld.createLayer(0);
 	game.physics.arcade.enable(layer);
     layer.resizeWorld();
-	zeWorld.setCollisionBetween(45, 100);
-	layer.debug = true;
+	zeWorld.setCollisionBetween(271, 2271);
+	// layer.debug = true;
 
 	//  Our bullet group
     bullets = new Shoot()
