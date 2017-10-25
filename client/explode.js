@@ -1,15 +1,18 @@
-class Explode extends Objects
+class Explode
 {
-	constructor(startx, starty) {
-		super(startx, starty)
-		this.initAnims()
+	constructor() {
+		this.explodes = game.add.group();
+	    this.explodes.enableBody = true;
 	}
 
-	initAnims() {
-		this.sprite.animations.add('splash', Phaser.Animation.generateFrameNames('explode', 1, 4));
-	}
-
-	play(step, speed) {
-		this.sprite.animations.play('splash', 40, false, true);
+	boom(from) {
+		var explode = this.explodes.getFirstExists(false);
+		if (!explode)
+		{
+			explode = this.explodes.create(from.body.x, from.body.y, 'shoot');
+			explode.animations.add('boom', Phaser.Animation.generateFrameNames('explode', 1, 4));
+		}
+		explode.reset(from.body.x, from.body.y);
+		explode.play('boom', 30, false, true)
 	}
 }

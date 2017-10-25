@@ -7,8 +7,12 @@ class Local extends User
 		this.sprite.isPlayer = true
 		this.sprite.PlayerOrdersCount = 0
 		// this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
-		this.graphics.lineStyle(2, 0xffd900, 1);
+		// this.graphics.lineStyle(2, 0xffd900, 1);
 		this.bearing = "down"
+	}
+
+	fire(portee) {
+		socket.shoot({type: "P", id: this.sprite.User_id, x: this.sprite.body.x, y: this.sprite.body.y, move: this.bearing, pow: portee })
 	}
 
 	sendMoveToServer(move) {
@@ -16,9 +20,9 @@ class Local extends User
 			this.bearing = move
 			this.sprite.PlayerOrdersCount += 1;
 			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
-			this.graphics.moveTo(this.sprite.body.x + 16, this.sprite.body.y + 16);//moving position of graphic if you draw mulitple lines
-		    this.graphics.lineTo(this.sprite.dest_x + 16, this.sprite.dest_y + 16);
-		    this.graphics.endFill();
+			// this.graphics.moveTo(this.sprite.body.x + 16, this.sprite.body.y + 16);//moving position of graphic if you draw mulitple lines
+		    // this.graphics.lineTo(this.sprite.dest_x + 16, this.sprite.dest_y + 16);
+		    // this.graphics.endFill();
 			socket.bcast({type: "P", id: this.sprite.User_id, face: this.sprite.face, num: this.sprite.PlayerOrdersCount, move: move, speed: 1, x: this.sprite.dest_x, y: this.sprite.dest_y })
 		}
 		this.sprite.PlayerIsMoving = true

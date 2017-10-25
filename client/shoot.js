@@ -1,75 +1,86 @@
-class Shoot extends Objects
+class Shoot
 {
-	constructor(startx, starty) {
-		super(startx, starty)
-		this.initAnims()
+	constructor() {
+		this.bullets = game.add.group();
+	    this.bullets.enableBody = true;
+	    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+		this.bulletTime = 0;
+
+		this.gunfire = game.add.group();
 	}
 
-	initAnims() {
-		this.sprite.animations.add('fire', Phaser.Animation.generateFrameNames('fire', 1, 3))
+	moveOver(sprt) {
+		sprt.kill();
 	}
-
-	play(step, speed) {
-		this.sprite.animations.play('fire', 40, false, true)
-	}
-}
-
-class Bullet extends Objects
-{
-	constructor(startx, starty) {
-		super(startx, starty)
-		console.log("SHOOT")
-	}
-
-	// moveOver(sprt) {
-	// 	this.sprite.destroy();
-	// }
 
 	sendMoveToServer(move) {
 	}
 
-	moveLeft(step, speed) {
-		this.sprite.frameName = "bullet3"
-		this.sprite.dest_x = this.sprite.body.x - step
-		this.sprite.dest_y = this.sprite.body.y
-
-		this.sendMoveToServer('left')
-		this.sprite.body.moveTo(speed, step, 180);
-	}
-
-	moveRight(step, speed) {
-		this.sprite.frameName = "bullet1"
-		this.sprite.dest_x = this.sprite.body.x + step
-		this.sprite.dest_y = this.sprite.body.y
-
-		this.sendMoveToServer('right')
-		this.sprite.body.moveTo(speed, step, 0);
-	}
-
-	moveUp(step, speed) {
-		this.sprite.frameName = "bullet4"
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y - step
-
-		this.sendMoveToServer('up')
-		this.sprite.body.moveTo(speed, step, 270);
-	}
-
-	moveDown(step, speed) {
-		this.sprite.frameName = "bullet2"
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y + step
-
-		this.sendMoveToServer('down')
-		this.sprite.body.moveTo(speed, step, 90);
-	}
-
-	move(bearing, step, speed) {
-		switch(bearing) {
-			case "up": this.moveUp(step, speed); break;
-			case "down": this.moveDown(step, speed); break;
-			case "left": this.moveLeft(step, speed); break;
-			case "right": this.moveRight(step, speed); break;
+	showFire(from) {
+		var fire = this.gunfire.getFirstExists(false);
+		if (!fire)
+		{
+			fire = this.bullets.create(from.body.x, from.body.y, 'shoot');
+			fire.animations.add('fire', Phaser.Animation.generateFrameNames('fire', 1, 3));
 		}
+        fire.reset(from.body.x, from.body.y);
+		fire.play('fire', 30, false, true)
+	}
+
+	moveLeft(bullet, step, speed) {
+		this.showFire(bullet)
+		bullet.frameName = "bullet3"
+		this.sendMoveToServer('left')
+		bullet.body.moveTo(speed, step, 180);
+	}
+
+	moveRight(bullet, step, speed) {
+		this.showFire(bullet)
+		bullet.frameName = "bullet1"
+		this.sendMoveToServer('right')
+		bullet.body.moveTo(speed, step, 0);
+	}
+
+	moveUp(bullet, step, speed) {
+		this.showFire(bullet)
+		bullet.frameName = "bullet4"
+		this.sendMoveToServer('up')
+		bullet.body.moveTo(speed, step, 270);
+	}
+
+	moveDown(bullet, step, speed) {
+		this.showFire(bullet)
+		bullet.frameName = "bullet2"
+		this.sendMoveToServer('down')
+		bullet.body.moveTo(speed, step, 90);
+	}
+
+	fire(from, step, speed) {
+
+	    //  To avoid them being allowed to fire too fast we set a time limit
+	    if (game.time.now > this.bulletTime)
+	    {
+			from.fire(step)
+	        //  Grab the first bullet we can from the pool
+	        var bullet = this.bullets.getFirstExists(false);
+	        if (!bullet)
+	        {
+				bullet = this.bullets.create(from.sprite.body.x, from.sprite.body.y, 'shoot');
+				bullet.checkWorldBounds = true;
+				bullet.outOfBoundsKill = true;
+			}
+            //  And fire it
+            bullet.reset(from.sprite.body.x, from.sprite.body.y);
+			bullet.body.onMoveComplete.add(this.moveOver, this);
+
+			switch(from.bearing) {
+				case "up": this.moveUp(bullet, step, speed); break;
+				case "down": this.moveDown(bullet, step, speed); break;
+				case "left": this.moveLeft(bullet, step, speed); break;
+				case "right": this.moveRight(bullet, step, speed); break;
+			}
+            this.bulletTime = game.time.now + 500;
+	    }
+
 	}
 }

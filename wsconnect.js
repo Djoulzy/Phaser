@@ -24,8 +24,10 @@ function Connection(addr, callback) {
     			break;
             case "[BCST]":
                 obj = JSON.parse(evt.data.substr(6));
-                // console.log("RCPT: "+evt.data.substr(6));
 				connEvt["enemy_move"].call(this, obj);
+                break;
+			case "[KILL]":
+				connEvt["kill_enemy"].call(this, evt.data.substr(6));
                 break;
 			case "[NUSR]":
 				// obj = JSON.parse(evt.data.substr(6));
@@ -74,6 +76,11 @@ function Connection(addr, callback) {
     this.bcast = function(message) {
 		// console.log(message);
         ws.send("[BCST]" + JSON.stringify(message))
+    }
+
+	this.shoot = function(message) {
+		// console.log(message);
+        ws.send("[FIRE]" + JSON.stringify(message))
     }
 
 	this.newPlayer = function(message) {

@@ -2,7 +2,7 @@ class Mob extends Remote
 {
 	constructor(id, face, subview, startx, starty) {
 		super(id, face, subview, startx, starty)
-		this.graphics.lineStyle(2, 0xf11010 , 1);
+		// this.graphics.lineStyle(2, 0xf11010 , 1);
 	}
 
 	initAnims(subview) {

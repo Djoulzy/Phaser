@@ -20,7 +20,9 @@ var step = 32;
 var ServerSpeed = 1000/window.ServerTimeStep
 var baseSpeed = Math.ceil(ServerSpeed/step)*step;
 var speed = baseSpeed + 50
-var explosion
+
+var bullets;
+var explodes;
 
 var gameProperties = {
 	//this is the actual game size to determine the boundary of
@@ -49,15 +51,16 @@ function onuserlogged(pseudo) {
 	// socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
 }
 
-function onRemovePlayer (data) {
-	var removePlayer = findplayerbyid(data.id);
+function onRemovePlayer(id) {
+	var removePlayer = findplayerbyid(id);
 	// Player not found
 	if (!removePlayer) {
-		console.log('Player not found: ', data.id)
+		console.log('Player not found: ', id)
 		return;
 	}
 
-	removePlayer.player.destroy();
+	explodes.boom(removePlayer.sprite)
+	removePlayer.destroy();
 	entities.splice(entities.indexOf(removePlayer), 1);
 }
 
@@ -111,11 +114,16 @@ function create() {
 	zeWorld.setCollisionBetween(45, 100);
 	layer.debug = true;
 
+	//  Our bullet group
+    bullets = new Shoot()
+	explodes = new Explode()
+
 	game.stage.disableVisibilityChange = true;
 	socket = new Connection(window.Server, onsocketConnected);
 	socket.on("userlogged", onuserlogged);
 	// socket.on("new_enemyPlayer", onNewPlayer);
 	socket.on("enemy_move", onEnemyMove);
+	socket.on("kill_enemy", onRemovePlayer);
 	// socket.on('remove_player', onRemovePlayer);
 }
 
@@ -128,10 +136,8 @@ function updatePlayer() {
 		else if (cursors.up.isDown) player.moveUp(step, speed)
 		else if (cursors.down.isDown) player.moveDown(step, speed)
 		else if (cursors.space.isDown) {
-			var fire = new Shoot(player.sprite.body.x, player.sprite.body.y)
-			fire.play()
-			var shoot = new Bullet(player.sprite.body.x, player.sprite.body.y)
-			shoot.move(player.bearing, step*10, speed)
+			var portee = 5
+			bullets.fire(player, step*portee, speed);
 		}
 	}
 }

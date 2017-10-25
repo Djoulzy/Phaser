@@ -16,8 +16,8 @@ class User
 		this.sprite.PlayerIsMoving = false
 		this.sprite.body.onMoveComplete.add(this.moveOver, this);
 
-		this.line = new Phaser.Line(0, 0, 100, 100);
-	    this.graphics=game.add.graphics(0,0);
+		// this.line = new Phaser.Line(0, 0, 100, 100);
+	    // this.graphics=game.add.graphics(0,0);
 	}
 
 	initAnims() {
@@ -38,5 +38,9 @@ class User
 
 	isMoving() {
 		return this.sprite.PlayerIsMoving
+	}
+
+	destroy() {
+		this.sprite.kill()
 	}
 }
