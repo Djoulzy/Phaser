@@ -2,7 +2,7 @@ var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload,
 
 function preload() {
 	game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
-	game.load.tilemap('zone1', 'assets/zone1.json', null, Phaser.Tilemap.TILED_JSON);
+	game.load.tilemap('zone1', 'http://10.31.200.78:8080/data/zone1.json', null, Phaser.Tilemap.TILED_JSON);
 	// game.load.tilemap('terrain', 'assets/zone1_terrain.csv', null, Phaser.Tilemap.CSV);
 	// game.load.tilemap('obstacles', 'assets/zone1_obstacles.csv', null, Phaser.Tilemap.CSV);
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
@@ -14,8 +14,7 @@ function preload() {
 
 var ZeWorld;
 var player;
-var layer1;
-var layer2;
+var terrain, decors, obstacles;
 var cursors;
 var socket;
 var entities = [];
@@ -109,7 +108,7 @@ function create() {
 	// cursors.addKeys({ 'space': Phaser.Keyboard.SPACEBAR })
 	cursors = game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
 
-	zeWorld = game.add.tilemap('zone1', 32, 32);
+	zeWorld = game.add.tilemap('zone1');
     zeWorld.addTilesetImage('zombie_tiles');
     terrain = zeWorld.createLayer('terrain');
     decors = zeWorld.createLayer('decors');
