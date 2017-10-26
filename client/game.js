@@ -1,8 +1,10 @@
 var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
-	game.load.image('tiles', 'assets/zombie_tiles.png');
-	game.load.tilemap('map', 'assets/zone1.json', null, Phaser.Tilemap.TILED_JSON);
+	game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
+	game.load.tilemap('zone1', 'assets/zone1.json', null, Phaser.Tilemap.TILED_JSON);
+	// game.load.tilemap('terrain', 'assets/zone1_terrain.csv', null, Phaser.Tilemap.CSV);
+	// game.load.tilemap('obstacles', 'assets/zone1_obstacles.csv', null, Phaser.Tilemap.CSV);
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
 	game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
 
@@ -12,7 +14,8 @@ function preload() {
 
 var ZeWorld;
 var player;
-var layer;
+var layer1;
+var layer2;
 var cursors;
 var socket;
 var entities = [];
@@ -106,13 +109,16 @@ function create() {
 	// cursors.addKeys({ 'space': Phaser.Keyboard.SPACEBAR })
 	cursors = game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
 
-	zeWorld = game.add.tilemap('map', 32, 32);
-    zeWorld.addTilesetImage('tiles');
-    layer = zeWorld.createLayer(0);
-	game.physics.arcade.enable(layer);
-    layer.resizeWorld();
-	zeWorld.setCollisionBetween(271, 2271);
-	// layer.debug = true;
+	zeWorld = game.add.tilemap('zone1', 32, 32);
+    zeWorld.addTilesetImage('zombie_tiles');
+    terrain = zeWorld.createLayer('terrain');
+    decors = zeWorld.createLayer('decors');
+    obstacles = zeWorld.createLayer('obstacles');
+
+    terrain.resizeWorld();
+	zeWorld.setCollisionBetween(272, 2271, true, obstacles);
+	// layer1.debug = true;
+	// layer2.debug = true;
 
 	//  Our bullet group
     bullets = new Shoot()
@@ -127,8 +133,13 @@ function create() {
 	// socket.on('remove_player', onRemovePlayer);
 }
 
+function playerBlocked() {
+	player.sprite.PlayerIsMoving = false
+	player.sprite.animations.stop();
+}
+
 function updatePlayer() {
-	game.physics.arcade.collide(player, layer, player.moveUserOver);
+	game.physics.arcade.collide(player.sprite, obstacles, playerBlocked);
 
 	if (!player.isMoving()) {
 		if (cursors.left.isDown) player.moveLeft(step, speed)
