@@ -4,39 +4,39 @@ class Local extends User
 		super(id, face, startx, starty)
 
 		this.initAnims()
-		this.sprite.isPlayer = true
-		this.sprite.PlayerOrdersCount = 0
+		this.isPlayer = true
+		this.PlayerOrdersCount = 0
 		// this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
 		// this.graphics.lineStyle(2, 0xffd900, 1);
 		this.bearing = "down"
 	}
 
 	fire(portee) {
-		socket.shoot({type: "P", id: this.sprite.User_id, x: this.sprite.body.x, y: this.sprite.body.y, move: this.bearing, pow: portee })
+		socket.shoot({type: "P", id: this.User_id, x: this.X, y: this.Y, move: this.bearing, pow: portee })
 	}
 
 	sendMoveToServer(move) {
-		if (this.sprite.isPlayer) {
+		if (this.isPlayer) {
 			this.bearing = move
-			this.sprite.PlayerOrdersCount += 1;
+			this.PlayerOrdersCount += 1;
 			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
 			// this.graphics.moveTo(this.sprite.body.x + 16, this.sprite.body.y + 16);//moving position of graphic if you draw mulitple lines
 		    // this.graphics.lineTo(this.sprite.dest_x + 16, this.sprite.dest_y + 16);
 		    // this.graphics.endFill();
-			socket.bcast({type: "P", id: this.sprite.User_id, face: this.sprite.face, num: this.sprite.PlayerOrdersCount, move: move, speed: 1, x: this.sprite.dest_x, y: this.sprite.dest_y })
+			socket.bcast({type: "P", id: this.User_id, face: this.face, num: this.PlayerOrdersCount, move: move, speed: 1, x: this.dest_X, y: this.dest_Y })
 		}
-		this.sprite.PlayerIsMoving = true
+		this.PlayerIsMoving = true
 	}
 
 	moveOver() {
 		this.adjustSpritePosition()
-		this.sprite.PlayerIsMoving = false
+		this.PlayerIsMoving = false
 		this.sprite.animations.stop();
 	}
 
 	moveLeft(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x - step
-		this.sprite.dest_y = this.sprite.body.y
+		this.dest_X = this.X - 1
+		this.dest_Y = this.Y
 
 		this.sendMoveToServer('left')
 		this.sprite.body.moveTo(speed, step, 180);
@@ -44,8 +44,8 @@ class Local extends User
 	}
 
 	moveRight(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x + step
-		this.sprite.dest_y = this.sprite.body.y
+		this.dest_X = this.X + 1
+		this.dest_Y = this.Y
 
 		this.sendMoveToServer('right')
 		this.sprite.body.moveTo(speed, step, 0);
@@ -53,8 +53,8 @@ class Local extends User
 	}
 
 	moveUp(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y - step
+		this.dest_X = this.X
+		this.dest_Y = this.Y - 1
 
 		this.sendMoveToServer('up')
 		this.sprite.body.moveTo(speed, step, 270);
@@ -62,8 +62,8 @@ class Local extends User
 	}
 
 	moveDown(step, speed) {
-		this.sprite.dest_x = this.sprite.body.x
-		this.sprite.dest_y = this.sprite.body.y + step
+		this.dest_X = this.X
+		this.dest_Y = this.Y + 1
 
 		this.sendMoveToServer('down')
 		this.sprite.body.moveTo(speed, step, 90);

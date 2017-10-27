@@ -47,7 +47,7 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	player = new Local(pseudo, 'h1', 32, 32);
+	player = new Local(pseudo, 'h1', 1, 1);
 	game.camera.follow(player.sprite);
 	// entities.push(new_player);
 	// socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
@@ -95,7 +95,7 @@ function onEnemyMove (data) {
 
 function findplayerbyid (id) {
 	for (var i = 0; i < entities.length; i++) {
-		if (entities[i].sprite.User_id == id) {
+		if (entities[i].User_id == id) {
 			return entities[i];
 		}
 	}
@@ -133,7 +133,7 @@ function create() {
 }
 
 function playerBlocked() {
-	player.sprite.PlayerIsMoving = false
+	player.PlayerIsMoving = false
 	player.sprite.animations.stop();
 }
 
@@ -156,9 +156,9 @@ function updateRemotePlayers() {
 	for (var i = 0; i < entities.length; i++) {
 		if (entities[i].moves.length > 0 && !entities[i].isMoving()) {
 			move = entities[i].moves.shift()
-			entities[i].sprite.dest_x = move.x;
-			entities[i].sprite.dest_y = move.y;
-			entities[i].sprite.PlayerIsMoving = true
+			entities[i].dest_X = move.x;
+			entities[i].dest_Y = move.y;
+			entities[i].PlayerIsMoving = true
 			mobSpeed = Math.ceil((ServerSpeed*move.speed)/step)*step + 50;
 
 			if (move.move == "left") entities[i].moveLeft(step, mobSpeed)

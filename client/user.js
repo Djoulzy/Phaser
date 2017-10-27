@@ -1,19 +1,20 @@
 class User
 {
 	constructor(id, face, startx, starty) {
-		this.sprite = game.add.sprite(startx , starty, face);
+		this.User_id = id;
+		this.face = face
+		this.X = startx
+		this.Y = starty
+		this.dest_X = startx
+	    this.dest_Y = starty
 
-		//this is the unique socket id. We use it as a unique name for enemy
-		this.sprite.User_id = id;
-		this.sprite.face = face
+		this.sprite = game.add.sprite(this.X*step , this.Y*step, face);
 
-	    this.sprite.dest_x = startx
-	    this.sprite.dest_y = starty
 		game.physics.arcade.enable(this.sprite);
 	    this.sprite.body.collideWorldBounds = true;
-		this.sprite.body.setSize(32, 32);
+		this.sprite.body.setSize(step, step);
 
-		this.sprite.PlayerIsMoving = false
+		this.PlayerIsMoving = false
 		this.sprite.body.onMoveComplete.add(this.moveOver, this);
 
 		// this.line = new Phaser.Line(0, 0, 100, 100);
@@ -28,16 +29,18 @@ class User
 	}
 
 	adjustSpritePosition() {
-		var markerx = game.math.snapToFloor(Math.ceil(this.sprite.dest_x), 32)
-		var markery = game.math.snapToFloor(Math.ceil(this.sprite.dest_y), 32)
+		var markerx = game.math.snapToFloor(Math.ceil(this.dest_X*step), step)
+		var markery = game.math.snapToFloor(Math.ceil(this.dest_Y*step), step)
 		// console.log("Adjusting : x="+this.sprite.body.x+" y="+this.sprite.body.y+" -> x="+ markerx +" y="+markery)
 		this.sprite.body.x = markerx
 		this.sprite.body.y = markery
+		this.X = this.dest_X
+		this.Y = this.dest_Y
 		// this.graphics.clear();
 	}
 
 	isMoving() {
-		return this.sprite.PlayerIsMoving
+		return this.PlayerIsMoving
 	}
 
 	destroy() {
