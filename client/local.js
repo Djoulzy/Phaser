@@ -34,39 +34,43 @@ class Local extends User
 		this.sprite.animations.stop();
 	}
 
-	moveLeft(step, speed) {
-		this.dest_X = this.X - 1
-		this.dest_Y = this.Y
-
-		this.sendMoveToServer('left')
-		this.sprite.body.moveTo(speed, step, 180);
-		this.sprite.animations.play('left');
+	moveLeft(map, step, speed) {
+		if (map.getTile(this.X - 1, this.Y, "obstacles") == null) {
+			this.dest_X = this.X - 1
+			this.dest_Y = this.Y
+			this.sendMoveToServer('left')
+			this.sprite.body.moveTo(speed, step, 180);
+			this.sprite.animations.play('left');
+		}
 	}
 
-	moveRight(step, speed) {
-		this.dest_X = this.X + 1
-		this.dest_Y = this.Y
-
-		this.sendMoveToServer('right')
-		this.sprite.body.moveTo(speed, step, 0);
-		this.sprite.animations.play('right');
+	moveRight(map, step, speed) {
+		if (map.getTile(this.X + 1, this.Y, "obstacles") == null) {
+			this.dest_X = this.X + 1
+			this.dest_Y = this.Y
+			this.sendMoveToServer('right')
+			this.sprite.body.moveTo(speed, step, 0);
+			this.sprite.animations.play('right');
+		}
 	}
 
-	moveUp(step, speed) {
-		this.dest_X = this.X
-		this.dest_Y = this.Y - 1
-
-		this.sendMoveToServer('up')
-		this.sprite.body.moveTo(speed, step, 270);
-		this.sprite.animations.play('up');
+	moveUp(map, step, speed) {
+		if (map.getTile(this.X, this.Y - 1, "obstacles") == null) {
+			this.dest_X = this.X
+			this.dest_Y = this.Y - 1
+			this.sendMoveToServer('up')
+			this.sprite.body.moveTo(speed, step, 270);
+			this.sprite.animations.play('up');
+		}
 	}
 
-	moveDown(step, speed) {
-		this.dest_X = this.X
-		this.dest_Y = this.Y + 1
-
-		this.sendMoveToServer('down')
-		this.sprite.body.moveTo(speed, step, 90);
-		this.sprite.animations.play('down');
+	moveDown(map, step, speed) {
+		if (map.getTile(this.X, this.Y + 1, "obstacles") == null) {
+			this.dest_X = this.X
+			this.dest_Y = this.Y + 1
+			this.sendMoveToServer('down')
+			this.sprite.body.moveTo(speed, step, 90);
+			this.sprite.animations.play('down');
+		}
 	}
 }

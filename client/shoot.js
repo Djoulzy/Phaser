@@ -55,12 +55,12 @@ class Shoot
 		bullet.body.moveTo(speed, step, 90);
 	}
 
-	fire(from, step, speed) {
+	fire(from, portee, speed) {
 
 	    //  To avoid them being allowed to fire too fast we set a time limit
 	    if (game.time.now > this.bulletTime)
 	    {
-			from.fire(step)
+			from.fire(portee)
 	        //  Grab the first bullet we can from the pool
 	        var bullet = this.bullets.getFirstExists(false);
 	        if (!bullet)
@@ -74,10 +74,10 @@ class Shoot
 			bullet.body.onMoveComplete.add(this.moveOver, this);
 
 			switch(from.bearing) {
-				case "up": this.moveUp(bullet, step, speed); break;
-				case "down": this.moveDown(bullet, step, speed); break;
-				case "left": this.moveLeft(bullet, step, speed); break;
-				case "right": this.moveRight(bullet, step, speed); break;
+				case "up": this.moveUp(bullet, portee*step, speed); break;
+				case "down": this.moveDown(bullet, portee*step, speed); break;
+				case "left": this.moveLeft(bullet, portee*step, speed); break;
+				case "right": this.moveRight(bullet, portee*step, speed); break;
 			}
             this.bulletTime = game.time.now + 500;
 	    }

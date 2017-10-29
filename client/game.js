@@ -2,7 +2,7 @@ var game = new Phaser.Game(640, 640, Phaser.AUTO, 'gameDiv', { preload: preload,
 
 function preload() {
 	game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
-	game.load.tilemap('zone1', 'http://10.31.200.78:8080/data/zone1.json', null, Phaser.Tilemap.TILED_JSON);
+	game.load.tilemap('zone1', 'http://'+window.Server+'/data/zone1.json', null, Phaser.Tilemap.TILED_JSON);
 	// game.load.tilemap('terrain', 'assets/zone1_terrain.csv', null, Phaser.Tilemap.CSV);
 	// game.load.tilemap('obstacles', 'assets/zone1_obstacles.csv', null, Phaser.Tilemap.CSV);
 	game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
@@ -12,7 +12,7 @@ function preload() {
 	game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 }
 
-var ZeWorld;
+var zeWorld;
 var player;
 var terrain, decors, obstacles;
 var cursors;
@@ -115,11 +115,7 @@ function create() {
     obstacles = zeWorld.createLayer('obstacles');
 
     terrain.resizeWorld();
-	zeWorld.setCollisionBetween(272, 2271, true, obstacles);
-	// layer1.debug = true;
-	// layer2.debug = true;
 
-	//  Our bullet group
     bullets = new Shoot()
 	explodes = new Explode()
 
@@ -138,16 +134,16 @@ function playerBlocked() {
 }
 
 function updatePlayer() {
-	game.physics.arcade.collide(player.sprite, obstacles, playerBlocked);
+	// game.physics.arcade.collide(player.sprite, obstacles, playerBlocked);
 
 	if (!player.isMoving()) {
-		if (cursors.left.isDown) player.moveLeft(step, speed)
-		else if (cursors.right.isDown) player.moveRight(step, speed)
-		else if (cursors.up.isDown) player.moveUp(step, speed)
-		else if (cursors.down.isDown) player.moveDown(step, speed)
+		if (cursors.left.isDown) player.moveLeft(zeWorld, step, speed)
+		else if (cursors.right.isDown) player.moveRight(zeWorld, step, speed)
+		else if (cursors.up.isDown) player.moveUp(zeWorld, step, speed)
+		else if (cursors.down.isDown) player.moveDown(zeWorld, step, speed)
 		else if (cursors.space.isDown) {
 			var portee = 5
-			bullets.fire(player, step*portee, speed);
+			bullets.fire(player, portee, speed);
 		}
 	}
 }
