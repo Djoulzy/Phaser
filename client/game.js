@@ -47,7 +47,7 @@ function onuserlogged(pseudo) {
 	gameProperties.in_game = true;
 	gameProperties.pseudo = pseudo;
 
-	player = new Local(pseudo, 'h1', 1, 1);
+	player = new Local(pseudo, 'h1', 2, 2);
 	game.camera.follow(player.sprite);
 	// entities.push(new_player);
 	// socket.bcast({type: "P", id: gameProperties.pseudo, face: "h1", x: 32, y: 32});
