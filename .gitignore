@@ -1,2 +1,6 @@
-config.js
+package-lock.json
+app/config.js
 *~
+node_modules
+.npm
+public
