@@ -11,10 +11,10 @@ function Play(){}
 Play.prototype = {
 
     initSocket: function() {
-        this.game.socket = new Connection(Config.ServerHost, this.onsocketConnected);
+        this.game.socket = new Connection(Config.ServerHost, this.onSocketConnected);
        	this.game.socket.on("userlogged", this.onUserLogged());
-      	this.game.socket.on("enemy_move", onEnemyMove);
-      	this.game.socket.on("kill_enemy", onRemovePlayer);
+      	this.game.socket.on("enemy_move", this.onEnemyMove());
+      	this.game.socket.on("kill_enemy", this.onRemovePlayer());
     },
 
     initMap: function() {
@@ -36,26 +36,50 @@ Play.prototype = {
 		return result;
 	},
 
-	onsocketConnected: function() {
+	findplayerbyid: function(id) {
+		for (var i = 0; i < entities.length; i++) {
+			if (entities[i].User_id == id) {
+				return entities[i];
+			}
+		}
+		return false
+	},
+
+	onEnemyMove: function(data) {
+		if (data.id == this.game.Properties.pseudo) {
+			return
+		}
+
+		var movePlayer = this.findplayerbyid(data.id);
+		if (!movePlayer) {
+			NewPlayer(data)
+			return;
+		}
+		movePlayer.moves.push(data)
+	},
+
+	onSocketConnected: function() {
 		var passphrase = this.findGetParameter("key")
+		console.log(passphrase)
 		this.game.socket.logon(passphrase);
 	},
 
-    onUserLogged: function() {
-		gameProperties.in_game = true;
-		gameProperties.pseudo = pseudo;
+    onUserLogged: function(pseudo) {
+		this.game.Properties.in_game = true
+		this.game.Properties.pseudo = pseudo
 
-		player = new Local(gameProperties, pseudo, 'h1', 2, 2);
-		game.camera.follow(player.sprite);
+		player = new Local(this.game, pseudo, 'h1', 2, 2);
+		this.game.camera.follow(player.sprite);
     },
 
     create: function() {
-      this.game.physics.startSystem(Phaser.Physics.ARCADE);
-      this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
 
-      this.initMap();
-    	this.initSocket();
-      this.addMainPlayer();
+		console.log(this.game.Properties)
+		this.initMap();
+		this.initSocket();
+		this.addMainPlayer();
     },
 
     update: function() {

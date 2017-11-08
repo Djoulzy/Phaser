@@ -2,21 +2,21 @@
 
 class User
 {
-	constructor(gameProperties, id, face, startx, starty) {
-		this.props = gameProperties
-
+	constructor(game, id, face, startx, starty) {
+		this.game = game
 		this.User_id = id;
 		this.face = face
 		this.X = startx
 		this.Y = starty
 		this.dest_X = startx
 	    this.dest_Y = starty
+		this.step = this.game.Properties.step
 
-		this.sprite = this.props.game.add.sprite(this.X*this.props.step , this.Y*this.props.step, face);
+		this.sprite = this.game.add.sprite(this.X*this.step, this.Y*this.step, face);
 
-		this.props.game.physics.arcade.enable(this.sprite);
+		this.game.physics.arcade.enable(this.sprite);
 	    this.sprite.body.collideWorldBounds = true;
-		this.sprite.body.setSize(this.props.step, this.props.step);
+		this.sprite.body.setSize(this.step, this.step);
 
 		this.PlayerIsMoving = false
 		this.sprite.body.onMoveComplete.add(this.moveOver, this);
@@ -33,8 +33,8 @@ class User
 	}
 
 	adjustSpritePosition() {
-		var markerx = this.props.game.math.snapToFloor(Math.ceil(this.dest_X*this.step), this.step)
-		var markery = this.props.game.math.snapToFloor(Math.ceil(this.dest_Y*this.step), this.step)
+		var markerx = this.game.math.snapToFloor(Math.ceil(this.dest_X*this.step), this.step)
+		var markery = this.game.math.snapToFloor(Math.ceil(this.dest_Y*this.step), this.step)
 		// console.log("Adjusting : x="+this.sprite.body.x+" y="+this.sprite.body.y+" -> x="+ markerx +" y="+markery)
 		this.sprite.body.x = markerx
 		this.sprite.body.y = markery
