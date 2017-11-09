@@ -20,8 +20,8 @@ Boot.prototype = {
 
     loadAssets: function() {
 		 // game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
-	  	this.game.load.image('Travail', 'assets/Travail.png');
 	  	this.game.load.tilemap('zone1', 'http://'+Config.MMOServer.Host+'/data/zone1.json', null, Phaser.Tilemap.TILED_JSON);
+	  	this.game.load.image('Travail', 'assets/Travail.png');
 	  	// game.load.tilemap('terrain', 'assets/zone1_terrain.csv', null, Phaser.Tilemap.CSV);
 	  	// game.load.tilemap('obstacles', 'assets/zone1_obstacles.csv', null, Phaser.Tilemap.CSV);
 	  	this.game.load.spritesheet('h1', 'assets/h1.png', 32, 32);

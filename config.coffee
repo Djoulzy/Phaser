@@ -24,7 +24,7 @@ module.exports = {
 		npm: {
 			static: [
 				'node_modules/crypto-js',
-				'node_modules/phaser-ce/build/phaser.js',
+				'node_modules/phaser-ce/build/phaser.js'
 			]
 		},
 		plugins: {
