@@ -1,12 +1,12 @@
-"use strict";
+'use strict'
 
 var Connection = function (addr, callback) {
     var ws = new WebSocket ('ws://'+addr+'/ws');
     var brothers = new Set();
     var connEvt = new Set();
 
-	this.on = function(evt, callback) {
-		connEvt[evt] = callback
+	this.on = function(evt, newCallback) {
+		connEvt[evt] = newCallback
 	}
 
     ws.onopen = callback
@@ -26,10 +26,10 @@ var Connection = function (addr, callback) {
     			break;
             case "[BCST]":
                 var obj = JSON.parse(evt.data.substr(6));
-				connEvt["enemy_move"].call(this, obj);
+				connEvt["enemy_move"](obj);
                 break;
 			case "[KILL]":
-				connEvt["kill_enemy"].call(this, evt.data.substr(6));
+				connEvt["kill_enemy"](evt.data.substr(6));
                 break;
 			case "[NUSR]":
 				// obj = JSON.parse(evt.data.substr(6));
@@ -39,7 +39,7 @@ var Connection = function (addr, callback) {
 				// break;
 			case "[WLCM]":
 				var pseudo = evt.data.substr(6);
-				connEvt["userlogged"].call(this, pseudo);
+				connEvt["userlogged"](pseudo);
 				break;
     		default:;
     	}
