@@ -4,8 +4,8 @@ const User = require('client/user');
 
 class Remote extends User
 {
-	constructor(gameProperties, id, face, subview, startx, starty) {
-		super(gameProperties, id, face, startx, starty)
+	constructor(game, id, face, subview, startx, starty) {
+		super(game, id, face, startx, starty)
 
 		this.isPlayer = false
 		this.PlayerOrdersCount = 0

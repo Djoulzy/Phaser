@@ -102,12 +102,12 @@ Play.prototype = {
 		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
 
 		this.entities = [];
-		this.bullets = new Shoot(this.game)
-		this.explode = new Explode(this.game)
 
 		this.initMap();
 		this.initSocket();
 		// this.addMainPlayer();
+		this.bullets = new Shoot(this.game)
+		this.explode = new Explode(this.game)
     },
 
 	updatePlayer: function() {

@@ -23,7 +23,7 @@ class Shoot
 		var fire = this.gunfire.getFirstExists(false);
 		if (!fire)
 		{
-			fire = this.bullets.create(from.body.x, from.body.y, 'shoot');
+			fire = this.bullets.create(from.body.x, from.body.y, 'shoot', 1000);
 			fire.animations.add('fire', Phaser.Animation.generateFrameNames('fire', 1, 3));
 		}
         fire.reset(from.body.x, from.body.y);
