@@ -1,10 +1,12 @@
 'use strict'
 
-var Config = require('config');
-var Connection = require('client/wsconnect');
-var Local = require('client/local');
-var Remote = require('client/remote');
-var Mob = require('client/mob');
+var Config = require('config')
+var Connection = require('client/wsconnect')
+var Local = require('client/local')
+var Remote = require('client/remote')
+var Mob = require('client/mob')
+var Shoot = require('client/shoot')
+var Explode = require('client/explode')
 
 function Play(){}
 
@@ -14,7 +16,7 @@ Play.prototype = {
         this.game.socket = new Connection(Config.MMOServer.Host, this.onSocketConnected.bind(this));
        	this.game.socket.on("userlogged", this.onUserLogged.bind(this));
       	this.game.socket.on("enemy_move", this.onEnemyMove.bind(this));
-     //  	this.game.socket.on("kill_enemy", this.onRemovePlayer());
+      	this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
     },
 
     initMap: function() {
@@ -70,6 +72,18 @@ Play.prototype = {
 		movePlayer.moves.push(data)
 	},
 
+	onRemoveEntity: function(id) {
+		var removePlayer = this.findplayerbyid(id);
+		if (!removePlayer) {
+			console.log('Player not found: ', id)
+			return
+		}
+
+		this.explode.boom(removePlayer.sprite)
+		removePlayer.destroy();
+		this.entities.splice(this.entities.indexOf(removePlayer), 1);
+	},
+
 	onSocketConnected: function() {
 		var passphrase = this.findGetParameter("key")
 		this.game.socket.logon(passphrase);
@@ -88,6 +102,9 @@ Play.prototype = {
 		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
 
 		this.entities = [];
+		this.bullets = new Shoot(this.game)
+		this.explode = new Explode(this.game)
+
 		this.initMap();
 		this.initSocket();
 		// this.addMainPlayer();
@@ -103,7 +120,7 @@ Play.prototype = {
 			else if (this.cursors.down.isDown) this.player.moveDown(this.zeWorld, this.game.Properties.step, this.game.Properties.speed)
 			else if (this.cursors.space.isDown) {
 				var portee = 5
-				bullets.fire(this.player, portee, this.game.Properties.speed);
+				this.bullets.fire(this.player, portee, this.game.Properties.speed);
 			}
 		}
 	},

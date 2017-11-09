@@ -1,12 +1,15 @@
+'use strict'
+
 class Shoot
 {
-	constructor() {
-		this.bullets = game.add.group();
+	constructor(game) {
+		this.game = game
+		this.bullets = this.game.add.group();
 	    this.bullets.enableBody = true;
 	    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
 		this.bulletTime = 0;
 
-		this.gunfire = game.add.group();
+		this.gunfire = this.game.add.group();
 	}
 
 	moveOver(sprt) {
@@ -58,7 +61,7 @@ class Shoot
 	fire(from, portee, speed) {
 
 	    //  To avoid them being allowed to fire too fast we set a time limit
-	    if (game.time.now > this.bulletTime)
+	    if (this.game.time.now > this.bulletTime)
 	    {
 			from.fire(portee)
 	        //  Grab the first bullet we can from the pool
@@ -74,13 +77,15 @@ class Shoot
 			bullet.body.onMoveComplete.add(this.moveOver, this);
 
 			switch(from.bearing) {
-				case "up": this.moveUp(bullet, portee*step, speed); break;
-				case "down": this.moveDown(bullet, portee*step, speed); break;
-				case "left": this.moveLeft(bullet, portee*step, speed); break;
-				case "right": this.moveRight(bullet, portee*step, speed); break;
+				case "up": this.moveUp(bullet, portee*this.game.Properties.step, speed); break;
+				case "down": this.moveDown(bullet, portee*this.game.Properties.step, speed); break;
+				case "left": this.moveLeft(bullet, portee*this.game.Properties.step, speed); break;
+				case "right": this.moveRight(bullet, portee*this.game.Properties.step, speed); break;
 			}
-            this.bulletTime = game.time.now + 500;
+            this.bulletTime = this.game.time.now + 500;
 	    }
 
 	}
 }
+
+module.exports = Shoot
