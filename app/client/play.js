@@ -10,6 +10,48 @@ var Explode = require('client/explode')
 
 function Play(){}
 
+// TPOW.States.Game = function(game) {};
+// TPOW.States.Game.prototype = {
+// 	 create : function() {
+// 		 // Load the current over world map
+// 		 this.home_village_f0 = this.game.add.tilemap('home_village_f0');
+// 		 this.home_village_f0.addTilesetImage('city_inside', 'tiles_city_inside');
+// 		 this.home_village_f0.addTilesetImage('forest_tiles', 'tiles_forest_tiles');
+// 		 this.home_village_f0.addTilesetImage('PathAndObjects_0', 'tiles_PathAndObjects_0');
+// 		 this.ground = this.home_village_f0.createLayer('ground');
+// 		 // Resize the game world to match the layer dimensions
+// 		 this.ground.resizeWorld();        // Load each module
+// 		 // TODO: Auto load modules based on map content
+// 		 this.house0_f0 = this.game.add.tilemap('house0_f0');
+// 		 this.house0_f0.addTilesetImage('city_outside', 'tiles_city_outside');
+// 		 this.house0_f0.addTilesetImage('interior', 'tiles_interior');
+// 		 this.house0_f0.addTilesetImage('hyptosis_tile-art-batch-3', 'tiles_hyptosis_tile-art-batch-3');
+// 		 this.house0_f0.addTilesetImage('base_out_atlas', 'tiles_base_out_atlas');
+// 		 this.house0_floor = this.house0_f0.createLayer('floor');
+// 		 this.house0_indoors0 = this.house0_f0.createLayer('indoors0');
+// 		 this.house0_indoors1 = this.house0_f0.createLayer('indoors1');
+// 		 this.house0_outdoors0 = this.house0_f0.createLayer('outdoors0');
+// 		 this.house0_outdoors1 = this.house0_f0.createLayer('outdoors1');        // Test
+// 		 this.house0_floor.alpha = 0;
+// 		 this.house0_indoors0.alpha = 0;
+// 		 this.house0_indoors1.alpha = 0;        /**         * More content not relevant to question.         */
+// 	 },
+// 	 update : function() {
+// 		 var alpha = this.house0_floor.alpha;
+// 		 if (alpha != 1) {
+// 			 alpha = Math.min(1, alpha + 0.005);        }
+// 			 this.house0_floor.alpha = alpha;
+// 			 this.house0_indoors0.alpha = alpha;
+// 			 this.house0_indoors1.alpha = alpha;
+// 			 this.house0_outdoors0.alpha = 1 - alpha;
+// 			 this.house0_outdoors1.alpha = 1 - alpha;        /**         * More content not relevant to question.         */
+// 	}};
+//
+// 	layer.fixedToCamera = false;
+// 	layer.scrollFactorX = 0;
+// 	layer.scrollFactorY = 0;
+// 	layer.position.set(pixelX, pixelY);
+
 Play.prototype = {
 
     initSocket: function() {
@@ -20,13 +62,41 @@ Play.prototype = {
     },
 
     initMap: function() {
-		this.zeWorld = this.game.add.tilemap('zone1');
-	    this.zeWorld.addTilesetImage('Travail');
+		this.zeWorld = this.game.add.tilemap('area1');
+	    this.zeWorld.addTilesetImage('zombie_tiles');
 	    this.terrain = this.zeWorld.createLayer('terrain');
 	    this.decors = this.zeWorld.createLayer('decors');
 	    this.obstacles = this.zeWorld.createLayer('obstacles');
-	    this.terrain.resizeWorld();
+	    // this.terrain.resizeWorld();
+
+		this.NewWorld = this.game.add.tilemap('area2');
+	    this.NewWorld.addTilesetImage('zombie_tiles');
+		this.loadNewMap()
     },
+
+	loadNewMap: function() {
+		// this.game.load.tilemap('zone2', 'http://'+Config.MMOServer.Host+'/data/zone2.json', null, Phaser.Tilemap.TILED_JSON);
+		this.terrain2 = this.NewWorld.createLayer('terrain');
+			this.terrain2.fixedToCamera = true;
+			this.terrain2.x = 30*32
+			this.terrain2.y = 0
+			this.terrain2.scrollFactorX = 30*32;
+			this.terrain2.scrollFactorY = 0;
+			this.terrain2.position.set(30*32, 0);
+        //
+	    // this.decors2 = this.NewWorld.createLayer('decors');
+		// 	this.decors2.fixedToCamera = false;
+		// 	this.decors2.scrollFactorX = 30*32;
+		// 	this.decors2.scrollFactorY = 0;
+		// 	this.decors2.position.set(30*32, 0);
+        //
+	    // this.obstacles2 = this.NewWorld.createLayer('obstacles');
+		// 	this.obstacles2.fixedToCamera = false;
+		// 	this.obstacles2.scrollFactorX = 30*32;
+		// 	this.obstacles2.scrollFactorY = 0;
+		// 	this.obstacles2.position.set(30*32, 0);
+		this.terrain2.resize(30*32*2, 30*32);
+	},
 
 	findGetParameter: function(parameterName) {
 		var result = null
@@ -121,6 +191,7 @@ Play.prototype = {
 			else if (this.cursors.space.isDown) {
 				var portee = 5
 				this.bullets.fire(this.player, portee, this.game.Properties.speed);
+				// this.loadNewMap()
 			}
 		}
 	},

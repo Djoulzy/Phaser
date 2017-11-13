@@ -19,16 +19,17 @@ Boot.prototype = {
     },
 
     loadAssets: function() {
-		 // game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
-	  	this.game.load.tilemap('zone1', 'http://'+Config.MMOServer.Host+'/data/zone1.json', null, Phaser.Tilemap.TILED_JSON);
-	  	this.game.load.image('Travail', 'assets/Travail.png');
-	  	// game.load.tilemap('terrain', 'assets/zone1_terrain.csv', null, Phaser.Tilemap.CSV);
-	  	// game.load.tilemap('obstacles', 'assets/zone1_obstacles.csv', null, Phaser.Tilemap.CSV);
+		// Graphics
 	  	this.game.load.spritesheet('h1', 'assets/h1.png', 32, 32);
 	  	this.game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
-
 	  	this.game.load.atlas('zombies', 'assets/ZombieSheet.png', 'assets/ZombieSheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 	  	this.game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+		this.game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
+	  	this.game.load.image('Travail', 'assets/Travail.png');
+
+		// Map
+		this.game.load.tilemap('area1', 'http://'+Config.MMOServer.Host+'/data/area1.json', null, Phaser.Tilemap.TILED_JSON);
+		this.game.load.tilemap('area2', 'http://'+Config.MMOServer.Host+'/data/area2.json', null, Phaser.Tilemap.TILED_JSON);
     },
 
     showLoadingText: function(){
