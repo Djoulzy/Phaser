@@ -4,8 +4,8 @@ const Remote = require('client/remote');
 
 class Mob extends Remote
 {
-	constructor(gameProperties, id, face, subview, startx, starty) {
-		super(gameProperties, id, face, subview, startx, starty)
+	constructor(game, id, face, subview, startx, starty) {
+		super(game, id, face, subview, startx, starty)
 		// this.graphics.lineStyle(2, 0xf11010 , 1);
 	}
 

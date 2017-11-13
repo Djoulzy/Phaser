@@ -80,7 +80,12 @@ var Connection = function (addr, callback) {
         ws.send("[BCST]" + JSON.stringify(message))
     }
 
-	this.shoot = function(message) {
+    this.playerMove = function(message) {
+		// console.log(message);
+        ws.send("[PMOV]" + JSON.stringify(message))
+    }
+
+	this.playerShoot = function(message) {
 		// console.log(message);
         ws.send("[FIRE]" + JSON.stringify(message))
     }

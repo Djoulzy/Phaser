@@ -51,10 +51,10 @@ Play.prototype = {
 		var movePlayer = this.findplayerbyid(data.id);
 		if (this.findplayerbyid(data.id)) return
 		else {
-			if (data.type == "P")
-				var new_enemy = new Remote(this.game, data.id, data.face, "", data.x, data.y);
+			if (data.typ == "P")
+				var new_enemy = new Remote(this.game, data.id, data.png, "", data.x, data.y);
 			else
-				var new_enemy = new Mob(this.game, data.id, "zombies", data.face, data.x, data.y);
+				var new_enemy = new Mob(this.game, data.id, "zombies", data.png, data.x, data.y);
 			this.entities.push(new_enemy);
 		}
 	},
@@ -132,12 +132,12 @@ Play.prototype = {
 				this.entities[i].dest_X = move.x;
 				this.entities[i].dest_Y = move.y;
 				this.entities[i].PlayerIsMoving = true
-				var mobSpeed = Math.ceil((this.game.Properties.ServerSpeed*move.speed)/this.game.Properties.step)*this.game.Properties.step + 50;
+				var mobSpeed = Math.ceil((this.game.Properties.ServerSpeed * move.spd) / this.game.Properties.step) * this.game.Properties.step + 50;
 
-				if (move.move == "left") this.entities[i].moveLeft(this.game.Properties.step, mobSpeed)
-				else if (move.move == "right") this.entities[i].moveRight(this.game.Properties.step, mobSpeed)
-				else if (move.move == "up") this.entities[i].moveUp(this.game.Properties.step, mobSpeed)
-				else if (move.move == "down") this.entities[i].moveDown(this.game.Properties.step, mobSpeed)
+				if (move.mov == "left") this.entities[i].moveLeft(this.game.Properties.step, mobSpeed)
+				else if (move.mov == "right") this.entities[i].moveRight(this.game.Properties.step, mobSpeed)
+				else if (move.mov == "up") this.entities[i].moveUp(this.game.Properties.step, mobSpeed)
+				else if (move.mov == "down") this.entities[i].moveDown(this.game.Properties.step, mobSpeed)
 			}
 		}
 	},

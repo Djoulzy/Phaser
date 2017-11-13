@@ -16,7 +16,14 @@ class Local extends User
 	}
 
 	fire(portee) {
-		this.game.socket.shoot({type: "P", id: this.User_id, x: this.X, y: this.Y, move: this.bearing, pow: portee })
+		this.game.socket.playerShoot({
+			typ: "P",
+			id: this.User_id,
+			x: this.X,
+			y: this.Y,
+			mov: this.bearing,
+			pow: portee
+		})
 	}
 
 	sendMoveToServer(move) {
@@ -27,7 +34,16 @@ class Local extends User
 			// this.graphics.moveTo(this.sprite.body.x + 16, this.sprite.body.y + 16);//moving position of graphic if you draw mulitple lines
 		    // this.graphics.lineTo(this.sprite.dest_x + 16, this.sprite.dest_y + 16);
 		    // this.graphics.endFill();
-			this.game.socket.bcast({type: "P", id: this.User_id, face: this.face, num: this.PlayerOrdersCount, move: move, speed: 1, x: this.dest_X, y: this.dest_Y })
+			this.game.socket.playerMove({
+				typ: "P",
+				id: this.User_id,
+				png: this.face,
+				num: this.PlayerOrdersCount,
+				mov: move,
+				spd: 1,
+				x: this.dest_X,
+				y: this.dest_Y
+			})
 		}
 		this.PlayerIsMoving = true
 	}
