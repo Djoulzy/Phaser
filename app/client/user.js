@@ -16,7 +16,7 @@ class User
 		this.game.midLayer.add(this.sprite)
 
 		this.game.physics.arcade.enable(this.sprite);
-	    this.sprite.body.collideWorldBounds = true;
+	    // this.sprite.body.collideWorldBounds = true;
 		this.sprite.body.setSize(this.step, this.step);
 
 		this.PlayerIsMoving = false

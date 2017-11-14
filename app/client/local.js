@@ -61,48 +61,51 @@ class Local extends User
 		this.sprite.animations.stop();
 	}
 
-	moveLeft(step, speed) {
+	getTileInArea(x, y) {
 		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
-		if (map.getTile(this.X - 1, this.Y, "obstacles") == null) {
+		var newX = x - this.area.x*this.game.Properties.areaWidth
+		var newY = y - this.area.y*this.game.Properties.areaHeight
+		return map.getTile(newX, newY, "obstacles")
+	}
+
+	moveLeft(step, speed) {
+		if (this.getTileInArea(this.X - 1, this.Y) == null) {
 			this.dest_X = this.X - 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('left')
 			this.sprite.body.moveTo(speed, step, 180);
 			this.sprite.animations.play('left');
-		}
+		} else this.PlayerIsMoving = false
 	}
 
 	moveRight(step, speed) {
-		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
-		if (map.getTile(this.X + 1, this.Y, "obstacles") == null) {
+		if (this.getTileInArea(this.X + 1, this.Y) == null) {
 			this.dest_X = this.X + 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('right')
 			this.sprite.body.moveTo(speed, step, 0);
 			this.sprite.animations.play('right');
-		}
+		} else this.PlayerIsMoving = false
 	}
 
 	moveUp(step, speed) {
-		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
-		if (map.getTile(this.X, this.Y - 1, "obstacles") == null) {
+		if (this.getTileInArea(this.X, this.Y - 1) == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y - 1
 			this.sendMoveToServer('up')
 			this.sprite.body.moveTo(speed, step, 270);
 			this.sprite.animations.play('up');
-		}
+		} else this.PlayerIsMoving = false
 	}
 
 	moveDown(step, speed) {
-		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
-		if (map.getTile(this.X, this.Y + 1, "obstacles") == null) {
+		if (this.getTileInArea(this.X, this.Y + 1) == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y + 1
 			this.sendMoveToServer('down')
 			this.sprite.body.moveTo(speed, step, 90);
 			this.sprite.animations.play('down');
-		}
+		} else this.PlayerIsMoving = false
 	}
 }
 

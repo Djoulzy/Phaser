@@ -10,48 +10,6 @@ var Explode = require('client/explode')
 
 function Play(){}
 
-// TPOW.States.Game = function(game) {};
-// TPOW.States.Game.prototype = {
-// 	 create : function() {
-// 		 // Load the current over world map
-// 		 this.home_village_f0 = this.game.add.tilemap('home_village_f0');
-// 		 this.home_village_f0.addTilesetImage('city_inside', 'tiles_city_inside');
-// 		 this.home_village_f0.addTilesetImage('forest_tiles', 'tiles_forest_tiles');
-// 		 this.home_village_f0.addTilesetImage('PathAndObjects_0', 'tiles_PathAndObjects_0');
-// 		 this.ground = this.home_village_f0.createLayer('ground');
-// 		 // Resize the game world to match the layer dimensions
-// 		 this.ground.resizeWorld();        // Load each module
-// 		 // TODO: Auto load modules based on map content
-// 		 this.house0_f0 = this.game.add.tilemap('house0_f0');
-// 		 this.house0_f0.addTilesetImage('city_outside', 'tiles_city_outside');
-// 		 this.house0_f0.addTilesetImage('interior', 'tiles_interior');
-// 		 this.house0_f0.addTilesetImage('hyptosis_tile-art-batch-3', 'tiles_hyptosis_tile-art-batch-3');
-// 		 this.house0_f0.addTilesetImage('base_out_atlas', 'tiles_base_out_atlas');
-// 		 this.house0_floor = this.house0_f0.createLayer('floor');
-// 		 this.house0_indoors0 = this.house0_f0.createLayer('indoors0');
-// 		 this.house0_indoors1 = this.house0_f0.createLayer('indoors1');
-// 		 this.house0_outdoors0 = this.house0_f0.createLayer('outdoors0');
-// 		 this.house0_outdoors1 = this.house0_f0.createLayer('outdoors1');        // Test
-// 		 this.house0_floor.alpha = 0;
-// 		 this.house0_indoors0.alpha = 0;
-// 		 this.house0_indoors1.alpha = 0;        /**         * More content not relevant to question.         */
-// 	 },
-// 	 update : function() {
-// 		 var alpha = this.house0_floor.alpha;
-// 		 if (alpha != 1) {
-// 			 alpha = Math.min(1, alpha + 0.005);        }
-// 			 this.house0_floor.alpha = alpha;
-// 			 this.house0_indoors0.alpha = alpha;
-// 			 this.house0_indoors1.alpha = alpha;
-// 			 this.house0_outdoors0.alpha = 1 - alpha;
-// 			 this.house0_outdoors1.alpha = 1 - alpha;        /**         * More content not relevant to question.         */
-// 	}};
-//
-// 	layer.fixedToCamera = false;
-// 	layer.scrollFactorX = 0;
-// 	layer.scrollFactorY = 0;
-// 	layer.position.set(pixelX, pixelY);
-
 Play.prototype = {
 
     initSocket: function() {
@@ -61,31 +19,36 @@ Play.prototype = {
       	this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
     },
 
-	loadNewArea: function(x, y) {
-		var areaname = 'area_'+x+'_'+y
-		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/data/'+areaname+'.json', null, Phaser.Tilemap.TILED_JSON);
-		this.game.load.onLoadComplete.add(function(){
-			this.game.WorldMap[x+'_'+y] = this.game.add.tilemap(areaname);
-		    this.game.WorldMap[x+'_'+y].addTilesetImage('zombie_tiles');
-		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('terrain'))
-		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('decors'))
-		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('obstacles'))
+    fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
+        var coord = cacheKey.split("_");
+        this.game.WorldMap[cacheKey] = this.game.add.tilemap(cacheKey);
+        this.game.WorldMap[cacheKey].addTilesetImage('zombie_tiles');
+        this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('terrain'))
+        this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('obstacles'))
 
-			var newWidth = (x+1)*this.game.Properties.areaWidth*this.game.Properties.step
-			var newHeight = (y+1)*this.game.Properties.areaHeight*this.game.Properties.step
-			if (this.game.world.width > newWidth) newWidth = this.game.world.width
-			if (this.game.world.height > newHeight) newHeight = this.game.world.height
-	        this.game.world.setBounds(0, 0, newWidth, newHeight)
-		}, this);
+        var newWidth = (parseInt(coord[0])+1)*this.game.Properties.areaWidth*this.game.Properties.step
+        var newHeight = (parseInt(coord[1])+1)*this.game.Properties.areaHeight*this.game.Properties.step
+        if (this.game.world.width > newWidth) newWidth = this.game.world.width
+        if (this.game.world.height > newHeight) newHeight = this.game.world.height
+        this.game.world.setBounds(0, 0, newWidth, newHeight)
+        console.log("Area "+cacheKey+" loaded - New World bounds : "+this.game.world.width+"x"+this.game.world.height)
+        console.log(this.game.WorldMap)
+    },
+
+	loadNewArea: function(x, y) {
+		var areaname = x+'_'+y
+		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/data/area_'+areaname+'.json', null, Phaser.Tilemap.TILED_JSON);
 		this.game.load.start();
 	},
 
     initMap: function() {
+		this.game.load.onFileComplete.add(this.fileComplete, this);
+
 		this.game.backLayer = this.game.add.group()
 		this.game.midLayer = this.game.add.group()
 		this.game.frontLayer = this.game.add.group()
 
-		this.game.WorldMap = []
+		this.game.WorldMap = new Array()
 		this.loadNewArea(0,0)
 		this.loadNewArea(1,0)
     },
@@ -173,8 +136,9 @@ Play.prototype = {
     },
 
 	checkLoadedMaps: function(x, y) {
-		if (this.game.WorldMap[x+'_'+y] == null)
+		if (!this.game.WorldMap[x+'_'+y]) {
 			this.loadNewArea(x, y)
+        }
 	},
 
 	updatePlayer: function() {

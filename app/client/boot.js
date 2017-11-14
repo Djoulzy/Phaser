@@ -6,6 +6,7 @@ function Boot(){}
 
 Boot.prototype = {
     preload: function(){
+        // this.game.plugins.add(Phaser.Plugin.Inspector)
         this.game.stage.disableVisibilityChange = true;
         this.game.stage.backgroundColor = 0x3b0760;
         this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
