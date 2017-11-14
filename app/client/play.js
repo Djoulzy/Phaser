@@ -67,35 +67,19 @@ Play.prototype = {
 	    this.terrain = this.zeWorld.createLayer('terrain');
 	    this.decors = this.zeWorld.createLayer('decors');
 	    this.obstacles = this.zeWorld.createLayer('obstacles');
-	    // this.terrain.resizeWorld();
+        this.game.world.setBounds(0,0,320,320);
 
-		this.NewWorld = this.game.add.tilemap('area2');
-	    this.NewWorld.addTilesetImage('zombie_tiles');
 		this.loadNewMap()
     },
 
 	loadNewMap: function() {
 		// this.game.load.tilemap('zone2', 'http://'+Config.MMOServer.Host+'/data/zone2.json', null, Phaser.Tilemap.TILED_JSON);
-		this.terrain2 = this.NewWorld.createLayer('terrain');
-			this.terrain2.fixedToCamera = true;
-			this.terrain2.x = 30*32
-			this.terrain2.y = 0
-			this.terrain2.scrollFactorX = 30*32;
-			this.terrain2.scrollFactorY = 0;
-			this.terrain2.position.set(30*32, 0);
-        //
-	    // this.decors2 = this.NewWorld.createLayer('decors');
-		// 	this.decors2.fixedToCamera = false;
-		// 	this.decors2.scrollFactorX = 30*32;
-		// 	this.decors2.scrollFactorY = 0;
-		// 	this.decors2.position.set(30*32, 0);
-        //
-	    // this.obstacles2 = this.NewWorld.createLayer('obstacles');
-		// 	this.obstacles2.fixedToCamera = false;
-		// 	this.obstacles2.scrollFactorX = 30*32;
-		// 	this.obstacles2.scrollFactorY = 0;
-		// 	this.obstacles2.position.set(30*32, 0);
-		this.terrain2.resize(30*32*2, 30*32);
+        this.NewWorld = this.game.add.tilemap('area2');
+	    this.NewWorld.addTilesetImage('zombie_tiles');
+        this.terrain_2 = this.NewWorld.createLayer('terrain');
+	    this.decors_2 = this.NewWorld.createLayer('decors');
+	    this.obstacles_2 = this.NewWorld.createLayer('obstacles');
+        this.game.world.setBounds(0,0,10240,10240);
 	},
 
 	findGetParameter: function(parameterName) {
