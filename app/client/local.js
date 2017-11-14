@@ -13,6 +13,12 @@ class Local extends User
 		// this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
 		// this.graphics.lineStyle(2, 0xffd900, 1);
 		this.bearing = "down"
+		this.area = new Phaser.Point(0, 0)
+	}
+
+	updateArea(x, y) {
+		this.area.x = Math.floor(x/this.game.Properties.areaWidth)
+		this.area.y = Math.floor(y/this.game.Properties.areaHeight)
 	}
 
 	fire(portee) {
@@ -28,6 +34,7 @@ class Local extends User
 
 	sendMoveToServer(move) {
 		if (this.isPlayer) {
+			this.updateArea(this.dest_X, this.dest_Y)
 			this.bearing = move
 			this.PlayerOrdersCount += 1;
 			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
@@ -54,7 +61,8 @@ class Local extends User
 		this.sprite.animations.stop();
 	}
 
-	moveLeft(map, step, speed) {
+	moveLeft(step, speed) {
+		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
 		if (map.getTile(this.X - 1, this.Y, "obstacles") == null) {
 			this.dest_X = this.X - 1
 			this.dest_Y = this.Y
@@ -64,7 +72,8 @@ class Local extends User
 		}
 	}
 
-	moveRight(map, step, speed) {
+	moveRight(step, speed) {
+		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
 		if (map.getTile(this.X + 1, this.Y, "obstacles") == null) {
 			this.dest_X = this.X + 1
 			this.dest_Y = this.Y
@@ -74,7 +83,8 @@ class Local extends User
 		}
 	}
 
-	moveUp(map, step, speed) {
+	moveUp(step, speed) {
+		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
 		if (map.getTile(this.X, this.Y - 1, "obstacles") == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y - 1
@@ -84,7 +94,8 @@ class Local extends User
 		}
 	}
 
-	moveDown(map, step, speed) {
+	moveDown(step, speed) {
+		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
 		if (map.getTile(this.X, this.Y + 1, "obstacles") == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y + 1

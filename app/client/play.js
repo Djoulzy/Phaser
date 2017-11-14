@@ -61,26 +61,34 @@ Play.prototype = {
       	this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
     },
 
-    initMap: function() {
-		this.zeWorld = this.game.add.tilemap('area1');
-	    this.zeWorld.addTilesetImage('zombie_tiles');
-	    this.terrain = this.zeWorld.createLayer('terrain');
-	    this.decors = this.zeWorld.createLayer('decors');
-	    this.obstacles = this.zeWorld.createLayer('obstacles');
-        this.game.world.setBounds(0,0,320,320);
+	loadNewArea: function(x, y) {
+		var areaname = 'area_'+x+'_'+y
+		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/data/'+areaname+'.json', null, Phaser.Tilemap.TILED_JSON);
+		this.game.load.onLoadComplete.add(function(){
+			this.game.WorldMap[x+'_'+y] = this.game.add.tilemap(areaname);
+		    this.game.WorldMap[x+'_'+y].addTilesetImage('zombie_tiles');
+		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('terrain'))
+		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('decors'))
+		    this.game.backLayer.add(this.game.WorldMap[x+'_'+y].createLayer('obstacles'))
 
-		this.loadNewMap()
-    },
-
-	loadNewMap: function() {
-		// this.game.load.tilemap('zone2', 'http://'+Config.MMOServer.Host+'/data/zone2.json', null, Phaser.Tilemap.TILED_JSON);
-        this.NewWorld = this.game.add.tilemap('area2');
-	    this.NewWorld.addTilesetImage('zombie_tiles');
-        this.terrain_2 = this.NewWorld.createLayer('terrain');
-	    this.decors_2 = this.NewWorld.createLayer('decors');
-	    this.obstacles_2 = this.NewWorld.createLayer('obstacles');
-        this.game.world.setBounds(0,0,10240,10240);
+			var newWidth = (x+1)*this.game.Properties.areaWidth*this.game.Properties.step
+			var newHeight = (y+1)*this.game.Properties.areaHeight*this.game.Properties.step
+			if (this.game.world.width > newWidth) newWidth = this.game.world.width
+			if (this.game.world.height > newHeight) newHeight = this.game.world.height
+	        this.game.world.setBounds(0, 0, newWidth, newHeight)
+		}, this);
+		this.game.load.start();
 	},
+
+    initMap: function() {
+		this.game.backLayer = this.game.add.group()
+		this.game.midLayer = this.game.add.group()
+		this.game.frontLayer = this.game.add.group()
+
+		this.game.WorldMap = []
+		this.loadNewArea(0,0)
+		this.loadNewArea(1,0)
+    },
 
 	findGetParameter: function(parameterName) {
 		var result = null
@@ -164,19 +172,26 @@ Play.prototype = {
 		this.explode = new Explode(this.game)
     },
 
+	checkLoadedMaps: function(x, y) {
+		if (this.game.WorldMap[x+'_'+y] == null)
+			this.loadNewArea(x, y)
+	},
+
 	updatePlayer: function() {
 		// game.physics.arcade.collide(player.sprite, obstacles, playerBlocked);
 
 		if (!this.player.isMoving()) {
-			if (this.cursors.left.isDown) this.player.moveLeft(this.zeWorld, this.game.Properties.step, this.game.Properties.speed)
-			else if (this.cursors.right.isDown) this.player.moveRight(this.zeWorld, this.game.Properties.step, this.game.Properties.speed)
-			else if (this.cursors.up.isDown) this.player.moveUp(this.zeWorld, this.game.Properties.step, this.game.Properties.speed)
-			else if (this.cursors.down.isDown) this.player.moveDown(this.zeWorld, this.game.Properties.step, this.game.Properties.speed)
+			if (this.cursors.left.isDown) this.player.moveLeft(this.game.Properties.step, this.game.Properties.speed)
+			else if (this.cursors.right.isDown) this.player.moveRight(this.game.Properties.step, this.game.Properties.speed)
+			else if (this.cursors.up.isDown) this.player.moveUp(this.game.Properties.step, this.game.Properties.speed)
+			else if (this.cursors.down.isDown) this.player.moveDown(this.game.Properties.step, this.game.Properties.speed)
 			else if (this.cursors.space.isDown) {
 				var portee = 5
 				this.bullets.fire(this.player, portee, this.game.Properties.speed);
 				// this.loadNewMap()
 			}
+		} else {
+			this.checkLoadedMaps(this.player.area.x, this.player.area.y)
 		}
 	},
 

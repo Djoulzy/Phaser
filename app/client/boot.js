@@ -26,10 +26,6 @@ Boot.prototype = {
 	  	this.game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 		this.game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
 	  	this.game.load.image('Travail', 'assets/Travail.png');
-
-		// Map
-		this.game.load.tilemap('area1', 'http://'+Config.MMOServer.Host+'/data/area1.json', null, Phaser.Tilemap.TILED_JSON);
-		this.game.load.tilemap('area2', 'http://'+Config.MMOServer.Host+'/data/area2.json', null, Phaser.Tilemap.TILED_JSON);
     },
 
     showLoadingText: function(){

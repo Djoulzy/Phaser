@@ -13,6 +13,7 @@ class User
 		this.step = this.game.Properties.step
 
 		this.sprite = this.game.add.sprite(this.X*this.step, this.Y*this.step, face);
+		this.game.midLayer.add(this.sprite)
 
 		this.game.physics.arcade.enable(this.sprite);
 	    this.sprite.body.collideWorldBounds = true;

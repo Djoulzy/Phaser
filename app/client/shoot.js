@@ -26,6 +26,7 @@ class Shoot
 			fire = this.bullets.create(from.body.x, from.body.y, 'shoot', 1000);
 			fire.animations.add('fire', Phaser.Animation.generateFrameNames('fire', 1, 3));
 		}
+		fire.bringToTop()
         fire.reset(from.body.x, from.body.y);
 		fire.play('fire', 30, false, true)
 	}
