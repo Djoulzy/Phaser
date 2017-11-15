@@ -12,37 +12,42 @@ var Connection = function (addr, callback) {
     ws.onopen = callback
 
     ws.onmessage = function(evt) {
-    	switch(evt.data.substr(0, 6))
-    	{
-    		case "[RDCT]":
-    			reconnect(evt.data.substr(6))
-    			break;
-    		case "[FLBK]":
-    			var obj = JSON.parse(evt.data.substr(6));
-    			for (var k in obj.BRTHLST){
-    			    if (obj.BRTHLST.hasOwnProperty(k))
-    					 brothers.add(obj.BRTHLST[k].Httpaddr)
-    			}
-    			break;
-            case "[BCST]":
-                var obj = JSON.parse(evt.data.substr(6));
-				connEvt["enemy_move"](obj);
-                break;
-			case "[KILL]":
-				connEvt["kill_enemy"](evt.data.substr(6));
-                break;
-			case "[NUSR]":
-				// obj = JSON.parse(evt.data.substr(6));
-				// obj = evt.data.substr(6);
-                // console.log("RCPT: "+obj);
-				// connEvt["new_enemyPlayer"].call(this, obj);
-				// break;
-			case "[WLCM]":
-				var pseudo = evt.data.substr(6);
-				connEvt["userlogged"](pseudo);
-				break;
-    		default:;
-    	}
+		var cmd = evt.data.split("|");
+		var len = cmd.length
+		console.log(len+" CMD received ...")
+		for (var i = 0; i < len; i++) {
+	    	switch(cmd[i].substr(0, 6))
+	    	{
+	    		case "[RDCT]":
+	    			reconnect(cmd[i].substr(6))
+	    			break;
+	    		case "[FLBK]":
+	    			var obj = JSON.parse(cmd[i].substr(6));
+	    			for (var k in obj.BRTHLST){
+	    			    if (obj.BRTHLST.hasOwnProperty(k))
+	    					 brothers.add(obj.BRTHLST[k].Httpaddr)
+	    			}
+	    			break;
+	            case "[BCST]":
+	                var obj = JSON.parse(cmd[i].substr(6));
+					connEvt["enemy_move"](obj);
+	                break;
+				case "[KILL]":
+					connEvt["kill_enemy"](cmd[i].substr(6));
+	                break;
+				case "[NUSR]":
+					// obj = JSON.parse(evt.data.substr(6));
+					// obj = evt.data.substr(6);
+	                // console.log("RCPT: "+obj);
+					// connEvt["new_enemyPlayer"].call(this, obj);
+					// break;
+				case "[WLCM]":
+					var pseudo = cmd[i].substr(6);
+					connEvt["userlogged"](pseudo);
+					break;
+	    		default:;
+	    	}
+		}
     }
 
 	ws.onclose = function(evt) {
