@@ -37,7 +37,7 @@ Play.prototype = {
 
 	loadNewArea: function(x, y) {
 		var areaname = x+'_'+y
-		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/data/area_'+areaname+'.json', null, Phaser.Tilemap.TILED_JSON);
+		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/map/'+areaname, null, Phaser.Tilemap.TILED_JSON);
 		this.game.load.start();
 	},
 
