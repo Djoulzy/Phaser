@@ -22,6 +22,7 @@ Play.prototype = {
     fileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
         var coord = cacheKey.split("_");
         this.game.WorldMap[cacheKey] = this.game.add.tilemap(cacheKey);
+		console.log(this.game.WorldMap[cacheKey])
         this.game.WorldMap[cacheKey].addTilesetImage('zombie_tiles');
         this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('terrain'))
         this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('obstacles'))
@@ -49,8 +50,6 @@ Play.prototype = {
 		this.game.frontLayer = this.game.add.group()
 
 		this.game.WorldMap = new Array()
-		this.loadNewArea(0,0)
-		this.loadNewArea(1,0)
     },
 
 	findGetParameter: function(parameterName) {
@@ -118,8 +117,9 @@ Play.prototype = {
 		this.game.Properties.in_game = true
 		this.game.Properties.pseudo = pseudo
 
-		this.player = new Local(this.game, pseudo, 'h1', 2, 2);
+		this.player = new Local(this.game, pseudo, 'h1', 25, 25);
 		this.game.camera.follow(this.player.sprite);
+		this.checkLoadedMaps(this.player.area.x, this.player.area.y)
     },
 
     create: function() {

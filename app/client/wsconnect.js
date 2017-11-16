@@ -14,7 +14,7 @@ var Connection = function (addr, callback) {
     ws.onmessage = function(evt) {
 		var cmd = evt.data.split("|");
 		var len = cmd.length
-		console.log(len+" CMD received ...")
+		// console.log(len+" CMD received ...")
 		for (var i = 0; i < len; i++) {
 	    	switch(cmd[i].substr(0, 6))
 	    	{
@@ -80,10 +80,10 @@ var Connection = function (addr, callback) {
 		// connEvt["userlogged"].call(this);
 	}
 
-    this.bcast = function(message) {
-		// console.log(message);
-        ws.send("[BCST]" + JSON.stringify(message))
-    }
+    // this.bcast = function(message) {
+	// 	// console.log(message);
+    //     ws.send("[BCST]" + JSON.stringify(message))
+    // }
 
     this.playerMove = function(message) {
 		// console.log(message);
