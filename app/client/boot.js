@@ -25,7 +25,7 @@ Boot.prototype = {
 	  	this.game.load.spritesheet('h2', 'assets/h2.png', 32, 32);
 	  	this.game.load.atlas('zombies', 'assets/ZombieSheet.png', 'assets/ZombieSheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 	  	this.game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-		this.game.load.image('zombie_tiles', 'assets/zombie_tiles.png');
+		this.game.load.image('final', 'assets/final.png');
 	  	this.game.load.image('Travail', 'assets/Travail.png');
     },
 

@@ -23,7 +23,7 @@ Play.prototype = {
         var coord = cacheKey.split("_");
         this.game.WorldMap[cacheKey] = this.game.add.tilemap(cacheKey);
 		console.log(this.game.WorldMap[cacheKey])
-        this.game.WorldMap[cacheKey].addTilesetImage('zombie_tiles');
+        this.game.WorldMap[cacheKey].addTilesetImage('final');
         this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('terrain'))
         this.game.backLayer.add(this.game.WorldMap[cacheKey].createLayer('obstacles'))
 
