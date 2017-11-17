@@ -42,8 +42,9 @@ var Connection = function (addr, callback) {
 					// connEvt["new_enemyPlayer"].call(this, obj);
 					// break;
 				case "[WLCM]":
-					var pseudo = cmd[i].substr(6);
-					connEvt["userlogged"](pseudo);
+					console.log(cmd[i])
+					var obj = JSON.parse(cmd[i].substr(6))
+					connEvt["userlogged"](obj)
 					break;
 	    		default:;
 	    	}

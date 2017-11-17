@@ -113,11 +113,12 @@ Play.prototype = {
 		this.game.socket.logon(passphrase);
 	},
 
-    onUserLogged: function(pseudo) {
+    onUserLogged: function(data) {
+		console.log(data)
 		this.game.Properties.in_game = true
-		this.game.Properties.pseudo = pseudo
+		this.game.Properties.pseudo = data.id
 
-		this.player = new Local(this.game, pseudo, 'h1', 25, 25);
+		this.player = new Local(this.game, data.id, data.png, data.x, data.y);
 		this.game.camera.follow(this.player.sprite);
 		this.checkLoadedMaps(this.player.area.x, this.player.area.y)
     },
