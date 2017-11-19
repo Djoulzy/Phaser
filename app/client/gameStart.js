@@ -5,11 +5,10 @@ var Config = require('config');
 var gameBootstrapper = {
     init: function(gameContainerElementId){
 
-        var game = new Phaser.Game(320, 320, Phaser.CANVAS, gameContainerElementId)
+        var game = new Phaser.Game(960, 640, Phaser.CANVAS, gameContainerElementId)
 
 		game.Properties = {
 			game_elemnt: "gameDiv",
-			in_game: false,
 			pseudo: "",
 			step: 32,
 			ServerSpeed: 1000/Config.MMOServer.TimeStep,

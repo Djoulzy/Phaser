@@ -11,19 +11,21 @@ class User
 		this.dest_X = startx
 	    this.dest_Y = starty
 		this.step = this.game.Properties.step
-
-		this.sprite = this.game.add.sprite(this.X*this.step, this.Y*this.step, face);
-		this.game.midLayer.add(this.sprite)
-
-		this.game.physics.arcade.enable(this.sprite);
-	    // this.sprite.body.collideWorldBounds = true;
-		this.sprite.body.setSize(this.step, this.step);
-
+		this.inGame = false
 		this.PlayerIsMoving = false
-		this.sprite.body.onMoveComplete.add(this.moveOver, this);
 
 		// this.line = new Phaser.Line(0, 0, 100, 100);
 	    // this.graphics=game.add.graphics(0,0);
+	}
+
+	initSprite() {
+		this.sprite = this.game.add.sprite(this.X*this.step, this.Y*this.step, this.face);
+		this.game.midLayer.add(this.sprite)
+		this.game.physics.arcade.enable(this.sprite);
+	    // this.sprite.body.collideWorldBounds = true;
+		this.sprite.body.setSize(this.step, this.step);
+		this.sprite.body.onMoveComplete.add(this.moveOver, this);
+		this.inGame = true
 	}
 
 	initAnims() {

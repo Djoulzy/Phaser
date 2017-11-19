@@ -30,7 +30,7 @@ var Connection = function (addr, callback) {
 	    			break;
 	            case "[BCST]":
 	                var obj = JSON.parse(cmd[i].substr(6));
-					connEvt["enemy_move"](obj);
+                    if (connEvt["enemy_move"]) connEvt["enemy_move"](obj);
 	                break;
 				case "[KILL]":
 					connEvt["kill_enemy"](cmd[i].substr(6));

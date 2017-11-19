@@ -7,19 +7,20 @@ class Local extends User
 	constructor(game, id, face, startx, starty) {
 		super(game, id, face, startx, starty)
 
-		this.initAnims()
 		this.isPlayer = true
 		this.PlayerOrdersCount = 0
 		// this.sprite.body.onMoveComplete.add(this.moveLocalOver, this);
 		// this.graphics.lineStyle(2, 0xffd900, 1);
 		this.bearing = "down"
 		this.area = new Phaser.Point(0, 0)
-		this.updateArea(startx, starty)
+		this.game.WorldMap.updateArea(startx, starty)
 	}
 
-	updateArea(x, y) {
-		this.area.x = Math.floor(x/this.game.Properties.areaWidth)
-		this.area.y = Math.floor(y/this.game.Properties.areaHeight)
+	initSprite() {
+		super.initSprite()
+		this.initAnims()
+		this.game.camera.follow(this.sprite)
+		this.inGame = true
 	}
 
 	fire(portee) {
@@ -35,7 +36,6 @@ class Local extends User
 
 	sendMoveToServer(move) {
 		if (this.isPlayer) {
-			this.updateArea(this.dest_X, this.dest_Y)
 			this.bearing = move
 			this.PlayerOrdersCount += 1;
 			// console.log("Sending: "+player.sprite.dest_x+"  "+player.sprite.dest_y)
@@ -53,6 +53,7 @@ class Local extends User
 				y: this.dest_Y
 			})
 		}
+		this.game.WorldMap.updateArea(this.dest_X, this.dest_Y)
 		this.PlayerIsMoving = true
 	}
 
@@ -62,15 +63,8 @@ class Local extends User
 		this.sprite.animations.stop();
 	}
 
-	getTileInArea(x, y) {
-		var map = this.game.WorldMap[this.area.x+'_'+this.area.y]
-		var newX = x - this.area.x*this.game.Properties.areaWidth
-		var newY = y - this.area.y*this.game.Properties.areaHeight
-		return map.getTile(newX, newY, "obstacles")
-	}
-
 	moveLeft(step, speed) {
-		if (this.getTileInArea(this.X - 1, this.Y) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X - 1, this.Y) == null) {
 			this.dest_X = this.X - 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('left')
@@ -80,7 +74,7 @@ class Local extends User
 	}
 
 	moveRight(step, speed) {
-		if (this.getTileInArea(this.X + 1, this.Y) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X + 1, this.Y) == null) {
 			this.dest_X = this.X + 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('right')
@@ -90,7 +84,7 @@ class Local extends User
 	}
 
 	moveUp(step, speed) {
-		if (this.getTileInArea(this.X, this.Y - 1) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X, this.Y - 1) == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y - 1
 			this.sendMoveToServer('up')
@@ -100,7 +94,7 @@ class Local extends User
 	}
 
 	moveDown(step, speed) {
-		if (this.getTileInArea(this.X, this.Y + 1) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X, this.Y + 1) == null) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y + 1
 			this.sendMoveToServer('down')
