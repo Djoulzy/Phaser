@@ -9,7 +9,7 @@ function Boot(){}
 
 Boot.prototype = {
     preload: function(){
-        // this.game.plugins.add(Phaser.Plugin.Inspector)
+        this.game.plugins.add(Phaser.Plugin.Inspector)
         this.game.stage.disableVisibilityChange = true;
         this.game.stage.backgroundColor = 0x3b0760;
         this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
@@ -30,9 +30,9 @@ Boot.prototype = {
     initMap: function() {
 		// this.game.load.onFileComplete.add(this.mapFileComplete, this);
 
-		this.game.backLayer = this.game.add.group()
-		this.game.midLayer = this.game.add.group()
-		this.game.frontLayer = this.game.add.group()
+		// this.game.backLayer = this.game.add.group()
+		// this.game.midLayer = this.game.add.group()
+		// this.game.frontLayer = this.game.add.group()
 
 		this.game.WorldMap = new Map(this.game)
     },
@@ -57,7 +57,7 @@ Boot.prototype = {
 
 	  	this.game.load.spritesheet(data.png, 'http://'+Config.MMOServer.Host+'/data/'+data.png+'.png', 32, 32);
 		this.game.player = new Local(this.game, data.id, data.png, data.x, data.y)
-        this.game.WorldMap.updateArea(data.x, data.y)
+        this.game.WorldMap.init(data.x, data.y)
         // this.game.load.onLoadComplete.addOnce(this.redrawPlayer, this.game.player);
         // this.game.load.start();
         this.loadAssets()
@@ -65,7 +65,6 @@ Boot.prototype = {
     },
 
     onLoadComplete: function() {
-        this.game.player.initSprite()
         this.game.state.start('play')
     },
 

@@ -18,17 +18,27 @@ Play.prototype = {
 
 		this.entities = [];
 
-		// this.initMap();
-		this.initSocket();
-		// this.addMainPlayer();
+		this.initMap()
+		this.initSocket()
+		this.initPlayer()
 		this.bullets = new Shoot(this.game)
 		this.explode = new Explode(this.game)
     },
+
+	initMap: function() {
+		console.log("INITMAP")
+		this.game.WorldMap.renderMap()
+	},
 
     initSocket: function() {
       	this.game.socket.on("enemy_move", this.onEnemyMove.bind(this));
       	this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
     },
+
+	initPlayer: function() {
+        this.game.player.initSprite()
+		console.log(this.game)
+	},
 
 	findplayerbyid: function(id) {
 		for (var i = 0; i < this.entities.length; i++) {
@@ -88,7 +98,6 @@ Play.prototype = {
 
 	updatePlayer: function() {
 		// game.physics.arcade.collide(player.sprite, obstacles, playerBlocked);
-
         if (this.game.player.inGame) {
     		if (!this.game.player.isMoving()) {
     			if (this.cursors.left.isDown) this.game.player.moveLeft(this.game.Properties.step, this.game.Properties.speed)
@@ -129,6 +138,7 @@ Play.prototype = {
     },
 
 	render: function() {
+		this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
 	}
 };
 
