@@ -8,8 +8,6 @@ class Shoot
 	    this.bullets.enableBody = true;
 	    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
 		this.bulletTime = 0;
-
-		this.gunfire = this.game.add.group();
 	}
 
 	moveOver(sprt) {
@@ -20,7 +18,7 @@ class Shoot
 	}
 
 	showFire(from) {
-		var fire = this.gunfire.getFirstExists(false);
+		var fire = this.bullets.getFirstExists(false);
 		if (!fire)
 		{
 			fire = this.bullets.create(from.body.x, from.body.y, 'shoot', 1000);

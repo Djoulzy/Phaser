@@ -14,8 +14,8 @@ var gameBootstrapper = {
 			ServerSpeed: 1000/Config.MMOServer.TimeStep,
 			baseSpeed: 0,
 			speed: 0,
-			areaWidth: 10,
-			areaHeight: 10
+			areaWidth: 50,
+			areaHeight: 50
 		};
 
 		game.Properties.baseSpeed = Math.ceil(game.Properties.ServerSpeed / game.Properties.step)*game.Properties.step

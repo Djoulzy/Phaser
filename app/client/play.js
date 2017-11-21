@@ -18,16 +18,21 @@ Play.prototype = {
 
 		this.entities = [];
 
-		this.initMap()
+        this.game.backLayer = this.game.add.group()
+		this.game.midLayer = this.game.add.group()
+		this.game.frontLayer = this.game.add.group()
+
 		this.initSocket()
 		this.initPlayer()
 		this.bullets = new Shoot(this.game)
 		this.explode = new Explode(this.game)
+
+		this.initMap()
     },
 
 	initMap: function() {
-		console.log("INITMAP")
 		this.game.WorldMap.renderMap()
+        // this.game.world.bringToTop(this.game.backLayer);
 	},
 
     initSocket: function() {
@@ -37,7 +42,6 @@ Play.prototype = {
 
 	initPlayer: function() {
         this.game.player.initSprite()
-		console.log(this.game)
 	},
 
 	findplayerbyid: function(id) {
@@ -138,7 +142,8 @@ Play.prototype = {
     },
 
 	render: function() {
-		this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
+		// this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
+        // this.game.backLayer.forEach(this.game.debug.spriteInfo);
 	}
 };
 

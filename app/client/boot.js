@@ -9,31 +9,27 @@ function Boot(){}
 
 Boot.prototype = {
     preload: function(){
-        this.game.plugins.add(Phaser.Plugin.Inspector)
+        // Debbug
+        // this.game.plugins.add(Phaser.Plugin.Inspector)
+
         this.game.stage.disableVisibilityChange = true;
         this.game.stage.backgroundColor = 0x3b0760;
-        this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
+        this.game.load.onFileComplete.add(this.onFileComplete, this);
+        this.game.load.onLoadComplete.add(this.onLoadComplete, this);
 
-        this.showLoadingText()
+        // this.showLoadingText()
         this.initMap()
         this.initSocket()
         // this.loadAssets()
     },
 
     initSocket: function() {
-        this.game.socket = new Connection(Config.MMOServer.Host, this.onSocketConnected.bind(this));
-       	this.game.socket.on("userlogged", this.onUserLogged.bind(this));
-      	// this.game.socket.on("enemy_move", this.onEnemyMove.bind(this));
-      	// this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
+        this.game.socket = new Connection(Config.MMOServer.Host, this.onSocketConnected.bind(this))
+       	this.game.socket.on("userlogged", this.onUserLogged.bind(this))
     },
 
     initMap: function() {
 		// this.game.load.onFileComplete.add(this.mapFileComplete, this);
-
-		// this.game.backLayer = this.game.add.group()
-		// this.game.midLayer = this.game.add.group()
-		// this.game.frontLayer = this.game.add.group()
-
 		this.game.WorldMap = new Map(this.game)
     },
 
@@ -62,6 +58,10 @@ Boot.prototype = {
         // this.game.load.start();
         this.loadAssets()
 		// this.checkLoadedMaps(this.game.player.area.x, this.game.player.area.y)
+    },
+
+    onFileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
+        console.log("File Complete: " + progress + "% - " + totalLoaded + " out of " + totalFiles + "(" + cacheKey + ")")
     },
 
     onLoadComplete: function() {

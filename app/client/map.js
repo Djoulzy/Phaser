@@ -38,7 +38,6 @@ class Map
 
     init(x, y) {
 		this.playerArea.set(Math.floor(x/this.game.Properties.areaWidth), Math.floor(y/this.game.Properties.areaHeight))
-        console.log("Player area: "+this.playerArea.toString())
         for (var py = -1; py < 2; py++) {
         	for (var px = -1; px < 2; px++) {
                 var ax = this.playerArea.x+px
@@ -47,6 +46,7 @@ class Map
 					this.WorldMap.push(new Area(ax, ay, 0))
 				} else {
 					var areaname = ax+'_'+ay
+        			console.log("Player area: "+areaname)
             		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/map/'+areaname, null, Phaser.Tilemap.TILED_JSON);
 					this.WorldMap.push(new Area(ax, ay, 1))
                 }
@@ -62,7 +62,6 @@ class Map
 	}
 
     renderMap() {
-		console.log(this.WorldMap)
 		this.WorldMap.forEach(function(element, index) {
 			if (element.status == 1) {
 				element.data = this.game.add.tilemap(element.name);
@@ -70,8 +69,8 @@ class Map
 				element.terrain = element.data.createLayer('terrain')
 				element.obtacles = element.data.createLayer('obstacles')
 
-		        // this.game.backLayer.add(terrain)
-		        // this.game.backLayer.add(obtacles)
+		        this.game.backLayer.add(element.terrain)
+		        this.game.backLayer.add(element.obtacles)
 
 		        var newWidth = (element.coord.x+1)*this.game.Properties.areaWidth*this.game.Properties.step
 		        var newHeight = (element.coord.y+1)*this.game.Properties.areaHeight*this.game.Properties.step
