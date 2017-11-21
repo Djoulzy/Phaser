@@ -5,7 +5,7 @@ var Config = require('config');
 var gameBootstrapper = {
     init: function(gameContainerElementId){
 
-        var game = new Phaser.Game(960, 640, Phaser.CANVAS, gameContainerElementId)
+        var game = new Phaser.Game(960, 960, Phaser.CANVAS, gameContainerElementId)
 
 		game.Properties = {
 			game_elemnt: "gameDiv",
@@ -14,8 +14,8 @@ var gameBootstrapper = {
 			ServerSpeed: 1000/Config.MMOServer.TimeStep,
 			baseSpeed: 0,
 			speed: 0,
-			areaWidth: 50,
-			areaHeight: 50
+			areaWidth: 10,
+			areaHeight: 10
 		};
 
 		game.Properties.baseSpeed = Math.ceil(game.Properties.ServerSpeed / game.Properties.step)*game.Properties.step

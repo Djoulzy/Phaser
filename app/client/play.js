@@ -142,7 +142,7 @@ Play.prototype = {
     },
 
 	render: function() {
-		// this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
+		this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
         // this.game.backLayer.forEach(this.game.debug.spriteInfo);
 	}
 };

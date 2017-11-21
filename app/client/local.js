@@ -64,7 +64,7 @@ class Local extends User
 	}
 
 	moveLeft(step, speed) {
-		if (this.game.WorldMap.getTileInArea(this.X - 1, this.Y) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X - 1, this.Y) == 0) {
 			this.dest_X = this.X - 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('left')
@@ -74,7 +74,7 @@ class Local extends User
 	}
 
 	moveRight(step, speed) {
-		if (this.game.WorldMap.getTileInArea(this.X + 1, this.Y) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X + 1, this.Y) == 0) {
 			this.dest_X = this.X + 1
 			this.dest_Y = this.Y
 			this.sendMoveToServer('right')
@@ -84,7 +84,7 @@ class Local extends User
 	}
 
 	moveUp(step, speed) {
-		if (this.game.WorldMap.getTileInArea(this.X, this.Y - 1) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X, this.Y - 1) == 0) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y - 1
 			this.sendMoveToServer('up')
@@ -94,7 +94,7 @@ class Local extends User
 	}
 
 	moveDown(step, speed) {
-		if (this.game.WorldMap.getTileInArea(this.X, this.Y + 1) == null) {
+		if (this.game.WorldMap.getTileInArea(this.X, this.Y + 1) == 0) {
 			this.dest_X = this.X
 			this.dest_Y = this.Y + 1
 			this.sendMoveToServer('down')

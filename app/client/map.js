@@ -10,27 +10,78 @@ class Area
 	// 2: active
 	// 3: disabled
 
-	constructor(x, y, status) {
+	constructor(game) {
+		this.game = game
         this.data = null
-        this.coord = new Phaser.Point(x, y)
-        this.status = status
-		this.name = x+'_'+y
+        this.coord = new Phaser.Point(0, 0)
+        this.status = 0
+		this.name = '0_0'
 		this.tarrain = null
 		this.obstacles = null
     }
+
+	load(coord) {
+		this.coord = coord
+		this.name = coord.x+'_'+coord.y
+		this.game.load.tilemap(this.name, 'http://'+Config.MMOServer.Host+'/map/'+this.name, null, Phaser.Tilemap.TILED_JSON)
+		this.status = 1
+		this.game.load.start()
+	}
+
+	render() {
+		if (this.status == 1) {
+			this.data = this.game.add.tilemap(this.name);
+			this.data.addTilesetImage('final');
+			this.terrain = this.data.createLayer('terrain')
+			this.terrain.fixedToCamera = false;
+			this.terrain.scrollFactorX = 0;
+			this.terrain.scrollFactorY = 0;
+			this.terrain.position.setTo(this.terrain.layer.x, this.terrain.layer.y);
+			this.obstacles = this.data.createLayer('obstacles')
+			this.obstacles.fixedToCamera = false;
+			this.obstacles.scrollFactorX = 0;
+			this.obstacles.scrollFactorY = 0;
+			this.obstacles.position.setTo(this.obstacles.layer.x, this.obstacles.layer.y);
+
+			// console.log("origin: "+this.obtacles.x + " "+ this.obtacles.y)
+					console.log(this.obstacles)
+
+			this.game.backLayer.add(this.terrain)
+			this.game.backLayer.add(this.obstacles)
+
+			var newWidth = (this.coord.x+2)*this.game.Properties.areaWidth*this.game.Properties.step
+			var newHeight = (this.coord.y+2)*this.game.Properties.areaHeight*this.game.Properties.step
+			if (this.game.world.width > newWidth) newWidth = this.game.world.width
+			if (this.game.world.height > newHeight) newHeight = this.game.world.height
+			this.game.world.setBounds(0, 0, newWidth, newHeight)
+			console.log("Area "+this.name+" Rendered - New World bounds : "+this.game.world.width+"x"+this.game.world.height)
+			this.status = 2
+		}
+	}
+
+	getTileValueAt(x, y) {
+		var result = 0
+		var newX = x - (this.obstacles.layer.x/32) // - this.coord.x*this.game.Properties.areaWidth
+		var newY = y - (this.obstacles.layer.y/32) // - this.coord.y*this.game.Properties.areaHeight
+		var tmp = this.data.getTile(newX, newY, this.obstacles)
+		if (tmp != null) result = tmp.index
+		console.log("Tile for : "+x+"x"+y+" converted to: "+newX+"x"+newY+" = "+result)
+		return result
+	}
 }
 
 class Map
 {
     constructor(game) {
-        this.WorldMap = new Array()
+		this.playerArea = new Phaser.Point(0, 0)
+        this.WorldMap = new Area(game)
         this.game = game
-        this.playerArea = new Phaser.Point(0, 0)
     }
 
     updateArea(x, y) {
 		var newarea = new Phaser.Point(Math.floor(x/this.game.Properties.areaWidth), Math.floor(y/this.game.Properties.areaHeight))
-		if (newarea != this.playerArea) {
+		if (!Phaser.Point.equals(newarea, this.playerArea)) {
+			console.log("Player reach new area: "+this.playerArea)
 			this.playerArea = newarea
 			this.checkLoadedMaps(this.playerArea.x, this.playerArea.y)
 		}
@@ -38,56 +89,19 @@ class Map
 
     init(x, y) {
 		this.playerArea.set(Math.floor(x/this.game.Properties.areaWidth), Math.floor(y/this.game.Properties.areaHeight))
-        for (var py = -1; py < 2; py++) {
-        	for (var px = -1; px < 2; px++) {
-                var ax = this.playerArea.x+px
-                var ay = this.playerArea.y+py
-                if (ax < 0 || ay < 0) {
-					this.WorldMap.push(new Area(ax, ay, 0))
-				} else {
-					var areaname = ax+'_'+ay
-        			console.log("Player area: "+areaname)
-            		this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/map/'+areaname, null, Phaser.Tilemap.TILED_JSON);
-					this.WorldMap.push(new Area(ax, ay, 1))
-                }
-            }
-        }
-        this.game.load.start();
-		// var areaname = this.playerArea.x+'_'+this.playerArea.y
-		// this.game.load.tilemap(areaname, 'http://'+Config.MMOServer.Host+'/map/'+areaname, null, Phaser.Tilemap.TILED_JSON);
-		// this.WorldMap.push(new Area(this.playerArea.x, this.playerArea.y, 1))
+		console.log("Player area: "+this.playerArea)
+		this.WorldMap.load(this.playerArea)
 	}
 
 	checkLoadedMaps(x, y) {
 	}
 
     renderMap() {
-		this.WorldMap.forEach(function(element, index) {
-			if (element.status == 1) {
-				element.data = this.game.add.tilemap(element.name);
-		        element.data.addTilesetImage('final');
-				element.terrain = element.data.createLayer('terrain')
-				element.obtacles = element.data.createLayer('obstacles')
-
-		        this.game.backLayer.add(element.terrain)
-		        this.game.backLayer.add(element.obtacles)
-
-		        var newWidth = (element.coord.x+1)*this.game.Properties.areaWidth*this.game.Properties.step
-		        var newHeight = (element.coord.y+1)*this.game.Properties.areaHeight*this.game.Properties.step
-		        if (this.game.world.width > newWidth) newWidth = this.game.world.width
-		        if (this.game.world.height > newHeight) newHeight = this.game.world.height
-		        this.game.world.setBounds(0, 0, newWidth, newHeight)
-		        console.log("Area "+element.name+" loaded - New World bounds : "+this.game.world.width+"x"+this.game.world.height)
-				element.status = 2
-			}
-		}, this);
+		this.WorldMap.render()
     }
 
     getTileInArea(x, y) {
-		var map = this.WorldMap[4].data
-		var newX = x - this.playerArea.x*this.game.Properties.areaWidth
-		var newY = y - this.playerArea.y*this.game.Properties.areaHeight
-		return map.getTile(newX, newY, "obstacles")
+		return this.WorldMap.getTileValueAt(x, y)
 	}
 }
 
