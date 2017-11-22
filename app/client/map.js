@@ -43,14 +43,11 @@ class Area
 			this.obstacles.scrollFactorY = 0;
 			this.obstacles.position.setTo(this.obstacles.layer.x, this.obstacles.layer.y);
 
-			// console.log("origin: "+this.obtacles.x + " "+ this.obtacles.y)
-					console.log(this.obstacles)
-
 			this.game.backLayer.add(this.terrain)
 			this.game.backLayer.add(this.obstacles)
 
-			var newWidth = (this.coord.x+2)*this.game.Properties.areaWidth*this.game.Properties.step
-			var newHeight = (this.coord.y+2)*this.game.Properties.areaHeight*this.game.Properties.step
+			var newWidth = (this.coord.x+3)*this.game.Properties.areaWidth*this.game.Properties.step
+			var newHeight = (this.coord.y+3)*this.game.Properties.areaHeight*this.game.Properties.step
 			if (this.game.world.width > newWidth) newWidth = this.game.world.width
 			if (this.game.world.height > newHeight) newHeight = this.game.world.height
 			this.game.world.setBounds(0, 0, newWidth, newHeight)
@@ -65,8 +62,14 @@ class Area
 		var newY = y - (this.obstacles.layer.y/32) // - this.coord.y*this.game.Properties.areaHeight
 		var tmp = this.data.getTile(newX, newY, this.obstacles)
 		if (tmp != null) result = tmp.index
-		console.log("Tile for : "+x+"x"+y+" converted to: "+newX+"x"+newY+" = "+result)
+		// console.log("Tile for : "+x+"x"+y+" converted to: "+newX+"x"+newY+" = "+result)
 		return result
+	}
+
+	destroy() {
+		this.terrain.destroy()
+		this.obstacles.destroy()
+		this.data.destroy()
 	}
 }
 
@@ -94,6 +97,20 @@ class Map
 	}
 
 	checkLoadedMaps(x, y) {
+		var name = x+'_'+y
+		this.game.DynLoad.loadMap(name, this.swapMap.bind(this))
+	}
+
+	swapMap(key) {
+		// console.log("Swap with map "+key)
+		// var old = this.WorldMap
+		this.WorldMap.destroy()
+		delete this.WorldMap
+		this.WorldMap = new Area(this.game)
+		this.WorldMap.name = key
+		this.WorldMap.coord = this.playerArea
+		this.WorldMap.status = 1
+		this.WorldMap.render()
 	}
 
     renderMap() {

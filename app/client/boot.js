@@ -14,8 +14,8 @@ Boot.prototype = {
 
         this.game.stage.disableVisibilityChange = true;
         this.game.stage.backgroundColor = 0x3b0760;
-        this.game.load.onFileComplete.add(this.onFileComplete, this);
-        this.game.load.onLoadComplete.add(this.onLoadComplete, this);
+        // this.game.load.onFileComplete.add(this.onFileComplete, this);
+        this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 
         // this.showLoadingText()
         this.initMap()

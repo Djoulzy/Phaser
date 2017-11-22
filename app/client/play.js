@@ -2,6 +2,7 @@
 
 var Config = require('config')
 var Connection = require('client/wsconnect')
+var DynLoad = require('client/dynload')
 var Local = require('client/local')
 var Remote = require('client/remote')
 var Mob = require('client/mob')
@@ -28,6 +29,7 @@ Play.prototype = {
 		this.explode = new Explode(this.game)
 
 		this.initMap()
+        this.game.DynLoad = new DynLoad(this.game)
     },
 
 	initMap: function() {

@@ -13,7 +13,7 @@ class Local extends User
 		// this.graphics.lineStyle(2, 0xffd900, 1);
 		this.bearing = "down"
 		this.area = new Phaser.Point(0, 0)
-		this.game.WorldMap.updateArea(startx, starty)
+		// this.game.WorldMap.updateArea(startx, starty)
 	}
 
 	initSprite() {
