@@ -17,7 +17,7 @@ Boot.prototype = {
         // this.game.load.onFileComplete.add(this.onFileComplete, this);
         this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 
-        // this.showLoadingText()
+        this.showLoadingText()
         this.initMap()
         this.initSocket()
         // this.loadAssets()
@@ -53,6 +53,7 @@ Boot.prototype = {
 
 	  	this.game.load.spritesheet(data.png, 'http://'+Config.MMOServer.Host+'/data/'+data.png+'.png', 32, 32);
 		this.game.player = new Local(this.game, data.id, data.png, data.x, data.y)
+		this.game.player.setAttr(data)
         this.game.WorldMap.init(data.x, data.y)
         // this.game.load.onLoadComplete.addOnce(this.redrawPlayer, this.game.player);
         // this.game.load.start();
@@ -74,7 +75,8 @@ Boot.prototype = {
 	  	// this.game.load.spritesheet('h2', 'http://'+Config.MMOServer.Host+'/data/h2.png', 32, 32);
 	  	this.game.load.atlas('zombies', 'assets/ZombieSheet.png', 'assets/ZombieSheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 	  	this.game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-		this.game.load.image('final', 'http://'+Config.MMOServer.Host+'/data/final.png');
+		this.game.load.image('final', 'http://'+Config.MMOServer.Host+'/data/final.png')
+		this.game.load.image('cartouche', 'http://'+Config.MMOServer.Host+'/data/cartouche.png');
     },
 
     showLoadingText: function(){

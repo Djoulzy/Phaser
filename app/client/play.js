@@ -2,7 +2,7 @@
 
 var Config = require('config')
 var Connection = require('client/wsconnect')
-var DynLoad = require('client/dynload')
+var OSD = require('client/osd')
 var Local = require('client/local')
 var Remote = require('client/remote')
 var Mob = require('client/mob')
@@ -15,7 +15,7 @@ Play.prototype = {
 
     create: function() {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT });
+		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT })
 
 		this.entities = [];
 
@@ -29,10 +29,13 @@ Play.prototype = {
 		this.explode = new Explode(this.game)
 
 		this.initMap()
-        this.game.DynLoad = new DynLoad(this.game)
+
+		this.game.camera.view = new Phaser.Rectangle(0,0,960,768)
+		// this.game.camera.deadzone = new Phaser.Rectangle(100, 100, 600, 400);
     },
 
 	initMap: function() {
+		this.game.OSD = new OSD(this.game)
 		this.game.WorldMap.renderMap()
         // this.game.world.bringToTop(this.game.backLayer);
 	},
@@ -66,10 +69,7 @@ Play.prototype = {
 		else {
 			if (data.typ == "P") {
                 console.log("New Remote Player")
-                this.game.load.spritesheet(data.png, 'http://'+Config.MMOServer.Host+'/data/'+data.png+'.png', 32, 32);
 				var new_enemy = new Remote(this.game, data.id, data.png, "", data.x, data.y);
-                // this.game.load.onLoadComplete.addOnce(this.redrawPlayer, new_enemy);
-                this.game.load.start();
             } else {
 				var new_enemy = new Mob(this.game, data.id, "zombies", data.png, data.x, data.y);
             }
@@ -145,7 +145,11 @@ Play.prototype = {
 
 	render: function() {
 		this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
-        // this.game.backLayer.forEach(this.game.debug.spriteInfo);
+		this.game.debug.cameraInfo(this.game.camera, 32, 500);
+
+		// var zone = this.game.camera.deadzone;
+	    // this.game.context.fillStyle = 'rgba(255,0,0,0.6)';
+	    // this.game.context.fillRect(zone.x, zone.y, zone.width, zone.height);
 	}
 };
 

@@ -28,38 +28,42 @@ class Area
 		this.game.load.start()
 	}
 
+	setWorldBound() {
+		var newWidth = (this.coord.x+3)*this.game.Properties.areaWidth*this.game.Properties.step
+		var newHeight = (this.coord.y+3)*this.game.Properties.areaHeight*this.game.Properties.step
+		if (this.game.world.width > newWidth) newWidth = this.game.world.width
+		if (this.game.world.height > newHeight) newHeight = this.game.world.height
+		this.game.world.setBounds(0, 0, newWidth, newHeight)
+		console.log("Area "+this.name+" Rendered - New World bounds : "+this.game.world.width+"x"+this.game.world.height)
+	}
+
 	render() {
 		if (this.status == 1) {
+			this.setWorldBound()
 			this.data = this.game.add.tilemap(this.name);
 			this.data.addTilesetImage('final');
 			this.terrain = this.data.createLayer('terrain')
-			this.terrain.fixedToCamera = false;
-			this.terrain.scrollFactorX = 0;
-			this.terrain.scrollFactorY = 0;
-			this.terrain.position.setTo(this.terrain.layer.x, this.terrain.layer.y);
+			// this.terrain.fixedToCamera = false;
+			// this.terrain.scrollFactorX = 0;
+			// this.terrain.scrollFactorY = 0;
+			// this.terrain.position.setTo(this.terrain.layer.x, this.terrain.layer.y);
 			this.obstacles = this.data.createLayer('obstacles')
-			this.obstacles.fixedToCamera = false;
-			this.obstacles.scrollFactorX = 0;
-			this.obstacles.scrollFactorY = 0;
-			this.obstacles.position.setTo(this.obstacles.layer.x, this.obstacles.layer.y);
+			// this.obstacles.fixedToCamera = false;
+			// this.obstacles.scrollFactorX = 0;
+			// this.obstacles.scrollFactorY = 0;
+			// this.obstacles.position.setTo(this.obstacles.layer.x, this.obstacles.layer.y);
 
 			this.game.backLayer.add(this.terrain)
 			this.game.backLayer.add(this.obstacles)
 
-			var newWidth = (this.coord.x+3)*this.game.Properties.areaWidth*this.game.Properties.step
-			var newHeight = (this.coord.y+3)*this.game.Properties.areaHeight*this.game.Properties.step
-			if (this.game.world.width > newWidth) newWidth = this.game.world.width
-			if (this.game.world.height > newHeight) newHeight = this.game.world.height
-			this.game.world.setBounds(0, 0, newWidth, newHeight)
-			console.log("Area "+this.name+" Rendered - New World bounds : "+this.game.world.width+"x"+this.game.world.height)
 			this.status = 2
 		}
 	}
 
 	getTileValueAt(x, y) {
 		var result = 0
-		var newX = x - (this.obstacles.layer.x/32) // - this.coord.x*this.game.Properties.areaWidth
-		var newY = y - (this.obstacles.layer.y/32) // - this.coord.y*this.game.Properties.areaHeight
+		var newX = x - (this.obstacles.layer.offsetX/32) // - this.coord.x*this.game.Properties.areaWidth
+		var newY = y - (this.obstacles.layer.offsetY/32) // - this.coord.y*this.game.Properties.areaHeight
 		var tmp = this.data.getTile(newX, newY, this.obstacles)
 		if (tmp != null) result = tmp.index
 		// console.log("Tile for : "+x+"x"+y+" converted to: "+newX+"x"+newY+" = "+result)
@@ -87,6 +91,7 @@ class Map
 			console.log("Player reach new area: "+this.playerArea)
 			this.playerArea = newarea
 			this.checkLoadedMaps(this.playerArea.x, this.playerArea.y)
+			this.game.OSD.refresh()
 		}
 	}
 

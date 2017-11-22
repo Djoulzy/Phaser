@@ -14,6 +14,15 @@ class Local extends User
 		this.bearing = "down"
 		this.area = new Phaser.Point(0, 0)
 		// this.game.WorldMap.updateArea(startx, starty)
+
+		this.PV = 0
+		this.ST = 0
+		this.TH = 0
+		this.FGT = 0
+		this.SHT = 0
+		this.CFT = 0
+		this.BRD = 0
+		this.GRW = 0
 	}
 
 	initSprite() {
@@ -21,6 +30,17 @@ class Local extends User
 		this.initAnims()
 		this.game.camera.follow(this.sprite)
 		this.inGame = true
+	}
+
+	setAttr(data) {
+		this.PV = data.pv
+		this.ST = data.st
+		this.TH = data.th
+		this.FGT = data.fgt
+		this.SHT = data.sht
+		this.CFT = data.cft
+		this.BRD = data.brd
+		this.GRW = data.grw
 	}
 
 	fire(portee) {
@@ -70,7 +90,10 @@ class Local extends User
 			this.sendMoveToServer('left')
 			this.sprite.body.moveTo(speed, step, 180);
 			this.sprite.animations.play('left');
-		} else this.PlayerIsMoving = false
+		} else {
+			this.PlayerIsMoving = false
+			this.sprite.frame = 4;
+		}
 	}
 
 	moveRight(step, speed) {
@@ -80,7 +103,10 @@ class Local extends User
 			this.sendMoveToServer('right')
 			this.sprite.body.moveTo(speed, step, 0);
 			this.sprite.animations.play('right');
-		} else this.PlayerIsMoving = false
+		} else {
+			this.PlayerIsMoving = false
+			this.sprite.frame = 7;
+		}
 	}
 
 	moveUp(step, speed) {
@@ -90,7 +116,10 @@ class Local extends User
 			this.sendMoveToServer('up')
 			this.sprite.body.moveTo(speed, step, 270);
 			this.sprite.animations.play('up');
-		} else this.PlayerIsMoving = false
+		} else {
+			this.PlayerIsMoving = false
+			this.sprite.frame = 10;
+		}
 	}
 
 	moveDown(step, speed) {
@@ -100,7 +129,10 @@ class Local extends User
 			this.sendMoveToServer('down')
 			this.sprite.body.moveTo(speed, step, 90);
 			this.sprite.animations.play('down');
-		} else this.PlayerIsMoving = false
+		} else {
+			this.PlayerIsMoving = false
+			this.sprite.frame = 1;
+		}
 	}
 }
 

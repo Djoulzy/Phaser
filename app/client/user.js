@@ -13,9 +13,15 @@ class User
 		this.step = this.game.Properties.step
 		this.inGame = false
 		this.PlayerIsMoving = false
-
 		// this.line = new Phaser.Line(0, 0, 100, 100);
 	    // this.graphics=game.add.graphics(0,0);
+	}
+
+	initAnims() {
+		this.sprite.animations.add('left', [3, 4, 5], 10, true);
+	    this.sprite.animations.add('right', [6, 7, 8], 10, true);
+	    this.sprite.animations.add('up', [9, 10, 11], 10, true);
+	    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 	}
 
 	initSprite() {
@@ -26,13 +32,6 @@ class User
 		this.sprite.body.setSize(this.step, this.step);
 		this.sprite.body.onMoveComplete.add(this.moveOver, this);
 		this.inGame = true
-	}
-
-	initAnims() {
-		this.sprite.animations.add('left', [3, 4, 5], 10, true);
-	    this.sprite.animations.add('right', [6, 7, 8], 10, true);
-	    this.sprite.animations.add('up', [9, 10, 11], 10, true);
-	    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 	}
 
 	adjustSpritePosition() {
