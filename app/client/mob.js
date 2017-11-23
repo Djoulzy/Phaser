@@ -9,8 +9,8 @@ class Mob extends Remote
 		// this.graphics.lineStyle(2, 0xf11010 , 1);
 	}
 
-	initAnims(subview) {
-		var visual = Number(subview)*12
+	initAnims() {
+		var visual = Number(this.subview)*12
 	    this.sprite.animations.add('down', [visual+0, visual+1, visual+2], 10, true);
 		this.sprite.animations.add('left', [visual+3, visual+4, visual+5], 10, true);
 	    this.sprite.animations.add('right', [visual+6, visual+7, visual+8], 10, true);

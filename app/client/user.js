@@ -32,6 +32,7 @@ class User
 		this.sprite.body.setSize(this.step, this.step);
 		this.sprite.body.onMoveComplete.add(this.moveOver, this);
 		this.inGame = true
+		this.initAnims()
 	}
 
 	adjustSpritePosition() {

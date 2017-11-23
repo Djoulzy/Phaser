@@ -2,6 +2,8 @@
 
 var Config = require('config')
 var Connection = require('client/wsconnect')
+var DynLoad = require('client/dynload')
+var WMap = require('client/map')
 var OSD = require('client/osd')
 var Local = require('client/local')
 var Remote = require('client/remote')
@@ -16,6 +18,7 @@ Play.prototype = {
     create: function() {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT })
+        this.game.DynLoad = new DynLoad(this.game)
 
 		this.entities = [];
 
@@ -35,9 +38,9 @@ Play.prototype = {
     },
 
 	initMap: function() {
+        this.game.WorldMap = new WMap(this.game)
 		this.game.OSD = new OSD(this.game)
-		this.game.WorldMap.renderMap()
-        // this.game.world.bringToTop(this.game.backLayer);
+        this.game.WorldMap.updateArea(this.game.player.X, this.game.player.Y)
 	},
 
     initSocket: function() {
@@ -72,6 +75,7 @@ Play.prototype = {
 				var new_enemy = new Remote(this.game, data.id, data.png, "", data.x, data.y);
             } else {
 				var new_enemy = new Mob(this.game, data.id, "zombies", data.png, data.x, data.y);
+                new_enemy.initSprite()
             }
 			this.entities.push(new_enemy);
 		}
@@ -144,8 +148,8 @@ Play.prototype = {
     },
 
 	render: function() {
-		this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
-		this.game.debug.cameraInfo(this.game.camera, 32, 500);
+		// this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
+		// this.game.debug.cameraInfo(this.game.camera, 32, 500);
 
 		// var zone = this.game.camera.deadzone;
 	    // this.game.context.fillStyle = 'rgba(255,0,0,0.6)';

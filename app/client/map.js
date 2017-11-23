@@ -20,14 +20,6 @@ class Area
 		this.obstacles = null
     }
 
-	load(coord) {
-		this.coord = coord
-		this.name = coord.x+'_'+coord.y
-		this.game.load.tilemap(this.name, 'http://'+Config.MMOServer.Host+'/map/'+this.name, null, Phaser.Tilemap.TILED_JSON)
-		this.status = 1
-		this.game.load.start()
-	}
-
 	setWorldBound() {
 		var newWidth = (this.coord.x+3)*this.game.Properties.areaWidth*this.game.Properties.step
 		var newHeight = (this.coord.y+3)*this.game.Properties.areaHeight*this.game.Properties.step
@@ -43,15 +35,7 @@ class Area
 			this.data = this.game.add.tilemap(this.name);
 			this.data.addTilesetImage('final');
 			this.terrain = this.data.createLayer('terrain')
-			// this.terrain.fixedToCamera = false;
-			// this.terrain.scrollFactorX = 0;
-			// this.terrain.scrollFactorY = 0;
-			// this.terrain.position.setTo(this.terrain.layer.x, this.terrain.layer.y);
 			this.obstacles = this.data.createLayer('obstacles')
-			// this.obstacles.fixedToCamera = false;
-			// this.obstacles.scrollFactorX = 0;
-			// this.obstacles.scrollFactorY = 0;
-			// this.obstacles.position.setTo(this.obstacles.layer.x, this.obstacles.layer.y);
 
 			this.game.backLayer.add(this.terrain)
 			this.game.backLayer.add(this.obstacles)
@@ -71,9 +55,11 @@ class Area
 	}
 
 	destroy() {
-		this.terrain.destroy()
-		this.obstacles.destroy()
-		this.data.destroy()
+		if (this.status == 2) {
+			this.terrain.destroy()
+			this.obstacles.destroy()
+			this.data.destroy()
+		}
 	}
 }
 
@@ -95,20 +81,12 @@ class Map
 		}
 	}
 
-    init(x, y) {
-		this.playerArea.set(Math.floor(x/this.game.Properties.areaWidth), Math.floor(y/this.game.Properties.areaHeight))
-		console.log("Player area: "+this.playerArea)
-		this.WorldMap.load(this.playerArea)
-	}
-
 	checkLoadedMaps(x, y) {
 		var name = x+'_'+y
 		this.game.DynLoad.loadMap(name, this.swapMap.bind(this))
 	}
 
 	swapMap(key) {
-		// console.log("Swap with map "+key)
-		// var old = this.WorldMap
 		this.WorldMap.destroy()
 		delete this.WorldMap
 		this.WorldMap = new Area(this.game)
@@ -117,10 +95,6 @@ class Map
 		this.WorldMap.status = 1
 		this.WorldMap.render()
 	}
-
-    renderMap() {
-		this.WorldMap.render()
-    }
 
     getTileInArea(x, y) {
 		return this.WorldMap.getTileValueAt(x, y)

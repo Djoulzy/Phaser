@@ -27,7 +27,6 @@ class Local extends User
 
 	initSprite() {
 		super.initSprite()
-		this.initAnims()
 		this.game.camera.follow(this.sprite)
 		this.inGame = true
 	}

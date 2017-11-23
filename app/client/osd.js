@@ -33,7 +33,7 @@ class OSD
 		this.Attr_GR = this.game.add.text(this.border, 380, "Grow: " + 0, Normal)
 		this.cartouche.addChild(this.Attr_GR)
 
-		this.label_area = this.game.add.text(this.border, 500, "Area: " + this.game.WorldMap.playerArea.x + " x " + this.game.WorldMap.playerArea.y, Normal)
+		this.label_area = this.game.add.text(this.border, 500, "Area: 0 x 0", Normal)
 		this.cartouche.addChild(this.label_area);
 
 		// this.game.frontLayer.add(this.label_score)

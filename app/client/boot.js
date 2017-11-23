@@ -3,14 +3,13 @@
 const Config = require('config');
 var Connection = require('client/wsconnect')
 var Local = require('client/local')
-var Map = require('client/map')
 
 function Boot(){}
 
 Boot.prototype = {
     preload: function(){
         // Debbug
-        // this.game.plugins.add(Phaser.Plugin.Inspector)
+        this.game.plugins.add(Phaser.Plugin.Inspector)
 
         this.game.stage.disableVisibilityChange = true;
         this.game.stage.backgroundColor = 0x3b0760;
@@ -18,19 +17,12 @@ Boot.prototype = {
         this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 
         this.showLoadingText()
-        this.initMap()
         this.initSocket()
-        // this.loadAssets()
     },
 
     initSocket: function() {
         this.game.socket = new Connection(Config.MMOServer.Host, this.onSocketConnected.bind(this))
        	this.game.socket.on("userlogged", this.onUserLogged.bind(this))
-    },
-
-    initMap: function() {
-		// this.game.load.onFileComplete.add(this.mapFileComplete, this);
-		this.game.WorldMap = new Map(this.game)
     },
 
     findGetParameter: function(parameterName) {
@@ -54,16 +46,15 @@ Boot.prototype = {
 	  	this.game.load.spritesheet(data.png, 'http://'+Config.MMOServer.Host+'/data/'+data.png+'.png', 32, 32);
 		this.game.player = new Local(this.game, data.id, data.png, data.x, data.y)
 		this.game.player.setAttr(data)
-        this.game.WorldMap.init(data.x, data.y)
-        // this.game.load.onLoadComplete.addOnce(this.redrawPlayer, this.game.player);
-        // this.game.load.start();
+
+        var mapName = (Math.floor(data.x/this.game.Properties.areaWidth))+'_'+(Math.floor(data.y/this.game.Properties.areaHeight))
+		this.game.load.tilemap(mapName, 'http://'+Config.MMOServer.Host+'/map/'+mapName, null, Phaser.Tilemap.TILED_JSON)
         this.loadAssets()
-		// this.checkLoadedMaps(this.game.player.area.x, this.game.player.area.y)
     },
 
-    onFileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
-        console.log("File Complete: " + progress + "% - " + totalLoaded + " out of " + totalFiles + "(" + cacheKey + ")")
-    },
+    // onFileComplete: function(progress, cacheKey, success, totalLoaded, totalFiles) {
+    //     console.log("File Complete: " + progress + "% - " + totalLoaded + " out of " + totalFiles + "(" + cacheKey + ")")
+    // },
 
     onLoadComplete: function() {
         this.game.state.start('play')
@@ -72,11 +63,11 @@ Boot.prototype = {
     loadAssets: function() {
 		// Graphics
 	  	this.game.load.spritesheet('h1', 'http://'+Config.MMOServer.Host+'/data/h1.png', 32, 32);
-	  	// this.game.load.spritesheet('h2', 'http://'+Config.MMOServer.Host+'/data/h2.png', 32, 32);
 	  	this.game.load.atlas('zombies', 'assets/ZombieSheet.png', 'assets/ZombieSheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 	  	this.game.load.atlas('shoot', 'assets/shoot.png', 'assets/shoot.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 		this.game.load.image('final', 'http://'+Config.MMOServer.Host+'/data/final.png')
 		this.game.load.image('cartouche', 'http://'+Config.MMOServer.Host+'/data/cartouche.png');
+        this.game.load.start();
     },
 
     showLoadingText: function(){
