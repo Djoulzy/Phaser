@@ -11,7 +11,7 @@ class OSD
 		var Gros = { font: "bold 32px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 		var Normal = { font: "bold 16px Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
 
-		this.label_name = this.game.add.text(this.border, 20, this.game.player.User_id, Gros)
+		this.label_name = this.game.add.text(this.border, 20, "", Gros)
 		this.label_name.setShadow(3, 3, 'rgba(150, 67, 49, 4)', 2);
 		this.cartouche.addChild(this.label_name);
 
@@ -41,7 +41,7 @@ class OSD
 	}
 
 	refresh() {
-		console.log(this.game.player)
+		this.label_name.setText(this.game.player.User_id)
 		this.label_area.setText("Area: " + this.game.WorldMap.playerArea.x + " x " + this.game.WorldMap.playerArea.y)
 	}
 }

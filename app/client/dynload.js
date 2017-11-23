@@ -14,22 +14,25 @@ class DynLoad
         console.log("Added new map to load queue: "+key)
         this.game.load.tilemap(key, 'http://'+Config.MMOServer.Host+'/map/'+key, null, Phaser.Tilemap.TILED_JSON)
         this.queue.set(key, callback)
-        this.game.load.start()
     }
 
     loadUser(key, callback) {
         console.log("Added new png to load queue: "+key)
         this.game.load.spritesheet(key, 'http://'+Config.MMOServer.Host+'/data/'+key+'.png', 32, 32);
         this.queue.set(key, callback)
-        this.game.load.start()
     }
 
     emptyQueue() {
         this.queue.forEach(function(element, index, theSet) {
+			console.log("Calling callback for "+index)
             element(index)
             this.queue.delete(index)
         }, this)
     }
+
+	start() {
+		if (this.queue.size) this.game.load.start()
+	}
 }
 
 module.exports = DynLoad

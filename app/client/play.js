@@ -17,6 +17,7 @@ Play.prototype = {
 
     create: function() {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.running = false
 		this.cursors = this.game.input.keyboard.addKeys({ 'space': Phaser.Keyboard.SPACEBAR, 'up': Phaser.Keyboard.UP, 'down': Phaser.Keyboard.DOWN, 'left': Phaser.Keyboard.LEFT, 'right': Phaser.Keyboard.RIGHT })
         this.game.DynLoad = new DynLoad(this.game)
 
@@ -27,31 +28,51 @@ Play.prototype = {
 		this.game.frontLayer = this.game.add.group()
 
 		this.initSocket()
-		this.initPlayer()
 		this.bullets = new Shoot(this.game)
 		this.explode = new Explode(this.game)
 
-		this.initMap()
+		this.game.WorldMap = new WMap(this.game)
+		this.game.OSD = new OSD(this.game)
 
 		this.game.camera.view = new Phaser.Rectangle(0,0,960,768)
 		// this.game.camera.deadzone = new Phaser.Rectangle(100, 100, 600, 400);
     },
 
-	initMap: function() {
-        this.game.WorldMap = new WMap(this.game)
-		this.game.OSD = new OSD(this.game)
-        this.game.WorldMap.updateArea(this.game.player.X, this.game.player.Y)
-	},
-
-    initSocket: function() {
+////////////////////////////////////////////////////
+//                      NETWORK                   //
+////////////////////////////////////////////////////
+	initSocket: function() {
+		this.game.socket = new Connection(Config.MMOServer.Host, this.onSocketConnected.bind(this))
+       	this.game.socket.on("userlogged", this.onUserLogged.bind(this))
       	this.game.socket.on("enemy_move", this.onEnemyMove.bind(this));
       	this.game.socket.on("kill_enemy", this.onRemoveEntity.bind(this));
     },
 
-	initPlayer: function() {
-        this.game.player.initSprite()
+	findGetParameter: function(parameterName) {
+		var result = null
+		var tmp = []
+		location.search.substr(1).split("&").forEach(function (item) {
+			tmp = item.split("=");
+			if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+		})
+		return result
 	},
 
+    onSocketConnected: function() {
+		var passphrase = this.findGetParameter("key")
+		this.game.socket.logon(passphrase);
+	},
+
+    onUserLogged: function(data) {
+		this.game.Properties.pseudo = data.id
+		this.game.player = new Local(this.game, data.id, data.png, data.x, data.y)
+		this.game.player.setAttr(data)
+		this.running = true
+    },
+
+////////////////////////////////////////////////////
+//                      PLAYERS                   //
+////////////////////////////////////////////////////
 	findplayerbyid: function(id) {
 		for (var i = 0; i < this.entities.length; i++) {
 			if (this.entities[i].User_id == id) {
@@ -60,11 +81,6 @@ Play.prototype = {
 		}
 		return false
 	},
-
-    // redrawPlayer: function() {
-    //     console.log("Reload texture for sprite "+this.User_id)
-    //     this.sprite.loadTexture(this.face, 0, false);
-    // },
 
 	newEntitie: function(data) {
 		var movePlayer = this.findplayerbyid(data.id);
@@ -75,12 +91,14 @@ Play.prototype = {
 				var new_enemy = new Remote(this.game, data.id, data.png, "", data.x, data.y);
             } else {
 				var new_enemy = new Mob(this.game, data.id, "zombies", data.png, data.x, data.y);
-                new_enemy.initSprite()
             }
 			this.entities.push(new_enemy);
 		}
 	},
 
+////////////////////////////////////////////////////
+//                       MOVES                    //
+////////////////////////////////////////////////////
 	onEnemyMove: function(data) {
 		if (data.id == this.game.Properties.pseudo) {
 			return
@@ -142,12 +160,19 @@ Play.prototype = {
 		}
 	},
 
+////////////////////////////////////////////////////
+//                       LOOPS                    //
+////////////////////////////////////////////////////
     update: function() {
-		this.updatePlayer()
-		this.updateRemotePlayers()
+		if (this.running) {
+			this.updatePlayer()
+			this.updateRemotePlayers()
+			this.game.OSD.refresh()
+		}
     },
 
 	render: function() {
+			this.game.DynLoad.start()
 		// this.game.debug.spriteInfo(this.game.player.sprite, 32, 32);
 		// this.game.debug.cameraInfo(this.game.camera, 32, 500);
 
@@ -155,6 +180,6 @@ Play.prototype = {
 	    // this.game.context.fillStyle = 'rgba(255,0,0,0.6)';
 	    // this.game.context.fillRect(zone.x, zone.y, zone.width, zone.height);
 	}
-};
+}
 
-module.exports = Play;
+module.exports = Play

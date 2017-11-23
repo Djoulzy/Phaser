@@ -15,6 +15,7 @@ class User
 		this.PlayerIsMoving = false
 		// this.line = new Phaser.Line(0, 0, 100, 100);
 	    // this.graphics=game.add.graphics(0,0);
+		this.game.DynLoad.loadUser(face, this.initSprite.bind(this))
 	}
 
 	initAnims() {
@@ -24,7 +25,7 @@ class User
 	    this.sprite.animations.add('down', [0, 1, 2], 10, true);
 	}
 
-	initSprite() {
+	initSprite(face) {
 		this.sprite = this.game.add.sprite(this.X*this.step, this.Y*this.step, this.face);
 		this.game.midLayer.add(this.sprite)
 		this.game.physics.arcade.enable(this.sprite);

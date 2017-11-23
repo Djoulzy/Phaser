@@ -23,12 +23,14 @@ class Local extends User
 		this.CFT = 0
 		this.BRD = 0
 		this.GRW = 0
+
+		// this.game.DynLoad.loadUser(face, this.initSprite.bind(this))
+		this.game.WorldMap.updateArea(startx, starty)
 	}
 
-	initSprite() {
-		super.initSprite()
+	initSprite(face) {
+		super.initSprite(face)
 		this.game.camera.follow(this.sprite)
-		this.inGame = true
 	}
 
 	setAttr(data) {

@@ -77,7 +77,6 @@ class Map
 			console.log("Player reach new area: "+this.playerArea)
 			this.playerArea = newarea
 			this.checkLoadedMaps(this.playerArea.x, this.playerArea.y)
-			this.game.OSD.refresh()
 		}
 	}
 
